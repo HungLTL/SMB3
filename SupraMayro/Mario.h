@@ -1,0 +1,139 @@
+#pragma once
+#include "GameObject.h"
+
+
+#define MARIO_MAX_WALKING_SPEED 0.12f
+#define MARIO_ACCELERATE_SPEED 0.003f
+#define MARIO_SPRINT_ACCELERATE_SPEED 0.004f
+#define MARIO_JUMP_SPEED_Y 0.45f
+#define MARIO_JUMP_DEFLECT_SPEED 0.2f
+#define MARIO_GRAVITY 0.002f
+#define MARIO_GRAVITY_FLY 0.02f
+#define MARIO_DIE_DEFLECT_SPEED 0.5f
+
+#define INVULN_TIME 1500
+
+#define MARIO_STATE_IDLE 0
+
+#define MARIO_STATE_WALK_LEFT 100
+#define MARIO_STATE_WALK_RIGHT 150
+
+#define MARIO_STATE_JUMP 200
+
+#define MARIO_STATE_SPRINT_LEFT 300
+#define MARIO_STATE_SPRINT_RIGHT 350
+
+#define MARIO_STATE_SLIDE 400
+
+#define MARIO_STATE_CROUCH 500
+
+#define MARIO_STATE_ATTACK 600
+
+#define MARIO_STATE_FLY 700
+
+#define MARIO_STATE_DEATH 800
+
+#define MARIO_FORM_NORMAL 1
+#define MARIO_FORM_SUPER 2
+#define MARIO_FORM_RACCOON 3
+#define MARIO_FORM_FIRE 4
+
+#define MARIO_ANI_IDLE_NORMAL_LEFT 0
+#define MARIO_ANI_IDLE_NORMAL_RIGHT 1
+#define MARIO_ANI_IDLE_SUPER_LEFT 2
+#define MARIO_ANI_IDLE_SUPER_RIGHT 3
+#define MARIO_ANI_IDLE_RACCOON_LEFT 4
+#define MARIO_ANI_IDLE_RACCOON_RIGHT 5
+#define MARIO_ANI_IDLE_FIRE_LEFT 6
+#define MARIO_ANI_IDLE_FIRE_RIGHT 7
+
+#define MARIO_ANI_WALK_NORMAL_LEFT 8
+#define MARIO_ANI_WALK_NORMAL_RIGHT 9
+#define MARIO_ANI_WALK_SUPER_LEFT 10
+#define MARIO_ANI_WALK_SUPER_RIGHT 11
+#define MARIO_ANI_WALK_RACCOON_LEFT 12
+#define MARIO_ANI_WALK_RACCOON_RIGHT 13
+#define MARIO_ANI_WALK_FIRE_LEFT 14
+#define MARIO_ANI_WALK_FIRE_RIGHT 15
+
+#define MARIO_ANI_JUMP_NORMAL_LEFT 16
+#define MARIO_ANI_JUMP_NORMAL_RIGHT 17
+#define MARIO_ANI_JUMP_SUPER_LEFT 18
+#define MARIO_ANI_JUMP_SUPER_RIGHT 19
+#define MARIO_ANI_JUMP_RACCOON_LEFT 20
+#define MARIO_ANI_JUMP_RACCOON_RIGHT 21
+#define MARIO_ANI_JUMP_FIRE_LEFT 22
+#define MARIO_ANI_JUMP_FIRE_RIGHT 23
+
+#define MARIO_ANI_SPRINT_NORMAL_LEFT 24
+#define MARIO_ANI_SPRINT_NORMAL_RIGHT 25
+#define MARIO_ANI_SPRINT_SUPER_LEFT 26
+#define MARIO_ANI_SPRINT_SUPER_RIGHT 27
+#define MARIO_ANI_SPRINT_RACCOON_LEFT 28
+#define MARIO_ANI_SPRINT_RACCOON_RIGHT 29
+#define MARIO_ANI_SPRINT_FIRE_LEFT 30
+#define MARIO_ANI_SPRINT_FIRE_RIGHT 31
+
+#define MARIO_ANI_SLIDE_NORMAL_LEFT 32
+#define MARIO_ANI_SLIDE_NORMAL_RIGHT 33
+#define MARIO_ANI_SLIDE_SUPER_LEFT 34
+#define MARIO_ANI_SLIDE_SUPER_RIGHT 35
+#define MARIO_ANI_SLIDE_RACCOON_LEFT 36
+#define MARIO_ANI_SLIDE_RACCOON_RIGHT 37
+#define MARIO_ANI_SLIDE_FIRE_LEFT 38
+#define MARIO_ANI_SLIDE_FIRE_RIGHT 39
+
+#define MARIO_ANI_CROUCH_SUPER_LEFT 40
+#define MARIO_ANI_CROUCH_SUPER_RIGHT 41
+#define MARIO_ANI_CROUCH_RACCOON_LEFT 42
+#define MARIO_ANI_CROUCH_RACCOON_RIGHT 43
+#define MARIO_ANI_CROUCH_FIRE_LEFT 44
+#define MARIO_ANI_CROUCH_FIRE_RIGHT 45
+
+#define MARIO_ANI_ATTACK_RACCOON_LEFT 46
+#define MARIO_ANI_ATTACK_RACCOON_RIGHT 47
+#define MARIO_ANI_ATTACK_FIRE_LEFT 48
+#define MARIO_ANI_ATTACK_FIRE_RIGHT 49
+
+#define MARIO_ANI_FLY_RACCOON_LEFT 50
+#define MARIO_ANI_FLY_RACCOON_RIGHT 51
+
+#define MARIO_ANI_DEATH 52
+
+#define MARIO_NORMAL_BBOX_WIDTH 12
+#define MARIO_NORMAL_BBOX_HEIGHT 15
+#define MARIO_SUPER_BBOX_WIDTH 15
+#define MARIO_SUPER_BBOX_HEIGHT 27
+#define MARIO_CROUCH_BBOX_WIDTH 14
+#define MARIO_CROUCH_BBOX_HEIGHT 18
+
+class CMario :public CGameObject {
+	int form;
+	float start_x, start_y;
+
+	bool IsGrounded, IsAttacking, IsCarrying;
+	int AttackTime;
+	int invuln;
+	DWORD invuln_start;
+public:
+	CMario(float x = 0.0f, float y = 0.0f);
+	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* colliable_objects = NULL);
+	virtual void Render();
+
+	void SetState(int state);
+	void SetPCForm(int form) { this->form = form; }
+	int GetPCForm() { return this->form; }
+	int GetNX() { return this->nx; }
+	int GetAttackTime(){ return this->AttackTime; }
+
+	bool GetGravStatus();
+	bool GetAttackStatus();
+	bool GetCarryStatus();
+	void SetCarryStatus(bool result) { this->IsCarrying = result; }
+	void StartInvuln() { invuln = 1; invuln_start = GetTickCount(); }
+
+	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
+	void Reset();
+
+	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
+};

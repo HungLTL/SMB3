@@ -1,0 +1,18 @@
+﻿  Game.cpp
+  Mario.cpp
+  PlayScene.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(82,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(104,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(122,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(123,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(185,21): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(304,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(307,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(314,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(317,20): warning C4018: '<': signed/unsigned mismatch
+  Shrub.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\Shrub.cpp(5,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\Shrub.cpp(10,20): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+  Generating Code...
+  SupraMayro.vcxproj -> E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe

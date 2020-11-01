@@ -1,0 +1,5 @@
+[SETTINGS]
+start	1
+#scene list
+[SCENES]
+1	world1_1.txt
