@@ -23,8 +23,8 @@
 #define WINDOW_CLASS_NAME L"SMB3"
 #define MAIN_WINDOW_TITLE L"Super Mario Bros. 3"
 #define BACKGROUND_COLOR D3DCOLOR_XRGB(156, 252, 240)
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 256
+#define SCREEN_HEIGHT 256
 #define MAX_FRAME_RATE 120
 
 CGame* game;
@@ -141,6 +141,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	game = CGame::GetInstance();
 	game->Init(hWnd);
+	game->SetScreenHeight(SCREEN_HEIGHT);
+	game->SetScreenWidth(SCREEN_WIDTH);
 	game->InitKeyboard();
 
 	game->Load(L"dat.txt");

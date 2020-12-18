@@ -4,9 +4,21 @@
 #include "Game.h"
 #include "Utility.h"
 
+#include "HUD.h"
+
 #include "PlayScene.h"
+#include "IntroScene.h"
+#include "MapScene.h"
 
 CGame* CGame::__instance = NULL;
+int prevState = NULL;
+int prevForm = NULL;
+int newX = NULL;
+int newY = NULL;
+
+#define SCENE_TYPE_INTRO 0
+#define SCENE_TYPE_MAP 1
+#define SCENE_TYPE_GAME 2
 
 void CGame::Init(HWND hWnd)
 {
@@ -128,6 +140,34 @@ CGame::~CGame()
 	if (d3d != NULL) d3d->Release();
 }
 
+void CGame::ResetCards() {
+	cards.clear();
+	cards = vector<int>(NUM_OF_CARDS, ANI_HUD_EMPTY);
+}
+
+void CGame::InitHUD() {
+	lives = 4;
+	score = time = coins = 0;
+	ResetCards();
+}
+
+void CGame::AddCoin() {
+	coins++;
+	if (coins == 100) {
+		AddLife();
+		coins = 0;
+	}
+}
+
+void CGame::AddCard(int value) {
+	for (int i = 0; i < NUM_OF_CARDS; i++) {
+		if (cards[i] == ANI_HUD_EMPTY) {
+			cards[i] = value;
+			break;
+		}
+	}
+}
+
 void CGame::SweptAABB(
 	float ml, float mt, float mr, float mb,
 	float dx, float dy,
@@ -197,7 +237,7 @@ void CGame::SweptAABB(
 		ty_exit = dy_exit / dy;
 	}
 
-	if ((tx_entry < 0.0f && ty_entry < 0.0f) || tx_entry > 1.0f || ty_entry > 1.0f) return;
+	if ((tx_entry < 0.0f && ty_entry < 0.0f) || tx_entry > 1.0f || ty_entry > 1.0f ) return;
 
 	t_entry = max(tx_entry, ty_entry);
 	t_exit = min(tx_exit, ty_exit);
@@ -245,9 +285,26 @@ void CGame::_ParseSection_SCENES(string line)
 
 	if (tokens.size() < 2) return;
 	int id = atoi(tokens[0].c_str());
-	LPCWSTR path = ToLPCWSTR(tokens[1]);
+	int type = atoi(tokens[1].c_str());
+	LPCWSTR path = ToLPCWSTR(tokens[2]);
 
-	LPSCENE scene = new CPlayScene(id, path);
+	LPSCENE scene = NULL;
+
+	switch (type) {
+	case SCENE_TYPE_INTRO:
+		scene = new CIntroScene(id, path);
+		break;
+	case SCENE_TYPE_GAME: {
+		float x = atof(tokens[3].c_str());
+		float X = atof(tokens[4].c_str());
+		scene = new CPlayScene(id, path, x, X);
+		break;
+	}
+	case SCENE_TYPE_MAP:
+		scene = new CMapScene(id, path);
+		break;
+	}
+
 	scenes[id] = scene;
 }
 
@@ -275,6 +332,7 @@ void CGame::Load(LPCWSTR gameFile)
 		}
 	}
 	f.close();
+
 	SwitchScene(current_scene);
 }
 
@@ -286,8 +344,26 @@ void CGame::SwitchScene(int scene_id)
 	CSprites::GetInstance()->Clear();
 	CAnimations::GetInstance()->Clear();
 
-	scene_id = current_scene;
+	current_scene = scene_id;
 	LPSCENE s = scenes[scene_id];
 	CGame::GetInstance()->SetKeyHandler(s->GetKeyEventHandler());
 	s->Load();
+
+	if (dynamic_cast<CPlayScene*>(s)) {
+		if (prevForm != NULL) {
+			(dynamic_cast<CPlayScene*>(s))->getPlayer()->SetPCForm(prevForm);
+			prevForm = NULL;
+		}
+		if (prevState != NULL) {
+			(dynamic_cast<CPlayScene*>(s))->getPlayer()->SetState(prevState);
+			prevState = NULL;
+		}
+		if ((newX != NULL) && (newY != NULL)) {
+			(dynamic_cast<CPlayScene*>(s))->getPlayer()->SetPosition(newX, newY);
+			newX = NULL;
+			newY = NULL;
+		}
+	}
+	else
+		SetCamPos(0, 0);
 }

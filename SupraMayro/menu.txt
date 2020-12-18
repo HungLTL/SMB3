@@ -1,0 +1,48 @@
+# id	file_path	transparent_color_r	g	b
+[TEXTURES]
+0	Textures\title.png	195	195	195
+
+# id	left	top	right	bottom	texture_id
+[SPRITES]
+# title screen
+0	516	237	771	449	0
+
+# curtain
+10	258	226	514	242	0
+11	258	243	514	259	0
+
+# cursor
+20	30	307	37	315	0
+
+# number 3
+30	194	363	236	404	0
+31	240	363	282	404	0
+32	287	363	329	404	0
+33	333	363	375	404	0
+
+# ani_id	sprite1_id	time1	sprite2_id	time2	...
+[ANIMATIONS]
+# title screen
+10	0	100
+# curtain
+100	10	100
+101	11	100
+# cursor
+200	20	100
+# number 3
+300	30	100	31	100	32	100	33	100	32	100	31	100
+
+[ANIMATION_SETS]
+# TITLE
+0	10
+# CURTAIN
+1	100	101
+# CURSOR
+2	200
+# NUMBER 3
+3	300
+
+[OBJECTS]
+0	0	11	0
+0	112	96	3
+1	0	0	1	12

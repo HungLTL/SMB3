@@ -13,7 +13,8 @@ class CWoodPlatform :public CPipe {
 protected:
 	int length;
 public:
-	CWoodPlatform(int length, int height) :CPipe(height) {
+	CWoodPlatform(int length, int height) {
+		this->height = height;
 		this->length = length;
 		vector<vector<int> > vec(height, vector<int>(length));
 		this->grid = vec;
@@ -22,4 +23,6 @@ public:
 	virtual void FillObject();
 	virtual void Render();
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);
+
+	int GetLength() { return this->length * WIDTH; }
 };

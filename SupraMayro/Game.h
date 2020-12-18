@@ -11,6 +11,8 @@
 
 #define KEYBOARD_BUFFER_SIZE 1024
 
+using namespace std;
+
 class CGame
 {
 	static CGame* __instance;
@@ -37,6 +39,14 @@ class CGame
 	std::unordered_map<int, LPSCENE> scenes;
 	int current_scene;
 
+	int prevState;
+	int prevForm;
+
+	int newX, newY;
+
+	int lives, score, time, coins;
+	vector<int> cards;
+
 	void _ParseSection_SETTINGS(std::string line);
 	void _ParseSection_SCENES(std::string line);
 
@@ -55,6 +65,36 @@ public:
 
 	int GetScreenWidth() { return screen_width; }
 	int GetScreenHeight() { return screen_height; }
+	void SetScreenWidth(int value) { screen_width = value; }
+	void SetScreenHeight(int value) { screen_height = value; }
+
+	int GetPrevState() { return prevState; }
+	int GetPrevForm() { return prevForm; }
+	void GetNewPos(int& x, int& y) { x = newX; y = newY; }
+
+	void SetPrevState(int value) { prevState = value; }
+	void SetPrevForm(int value) { prevForm = value; }
+	void SetNewPos(int x, int y) { newX = x; newY = y; }
+
+	void InitHUD();
+
+	void AddLife() { lives++; }
+	void LoseLife() { lives--; }
+	int GetLives() { return lives; }
+
+	void AddScore(int value) { score += value; }
+	int GetScore() { return score; }
+
+	void InitTimer() { time = 300; }
+	void TimerTic() { if (time > 0) time--; }
+	int GetTime() { return time; }
+
+	void AddCoin();
+	int GetCoins() { return coins; }
+
+	void AddCard(int value);
+	vector<int> GetCards() { return cards; }
+	void ResetCards();
 
 	static void SweptAABB(
 		float ml,
@@ -76,6 +116,9 @@ public:
 	LPD3DXSPRITE GetSpriteHandler() { return this->spriteHandler; }
 
 	void SetCamPos(float x, float y) { cam_x = x; cam_y = y; }
+	void SetCamX(float x) { cam_x = x; }
+	void SetCamY(float y) { cam_y = y; }
+	void GetCamPos(float& x, float& y) { x = cam_x; y = cam_y; }
 
 	static CGame* GetInstance();
 

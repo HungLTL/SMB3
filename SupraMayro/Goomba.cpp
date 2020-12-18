@@ -2,18 +2,38 @@
 #include "Goomba.h"
 #include "BackgroundPlatform.h"
 #include "Mario.h"
+#include "Tail.h"
 #include "Koopa.h"
 
-CGoomba::CGoomba(int x, int X)
+#include "Block.h"
+#include "GoldBlock.h"
+#include "PowerBlock.h"
+#include "Fireball.h"
+
+#include "Game.h"
+#include "PlayScene.h"
+
+CGoomba::CGoomba(int x, int X, bool IsPara)
 {
-	SetState(GOOMBA_STATE_WALK);
 	this->min_x = x;
 	this->max_x = X;
+
+	this->bounces = 0;
+	this->walk = 0;
+
+	this->active = true;
+
+	if (IsPara)
+		this->form = GOOMBA_FORM_PARA;
+	else
+		this->form = GOOMBA_FORM_NORMAL;
+
+	this->SetState(GOOMBA_STATE_WALK_LEFT);
 }
 
 void CGoomba::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 {
-	if (state == GOOMBA_STATE_WALK) {
+	if ((state == GOOMBA_STATE_WALK_LEFT) || (state == GOOMBA_STATE_FLY) || (state == GOOMBA_STATE_WALK_RIGHT)) {
 		left = x;
 		top = y;
 		right = x + GOOMBA_BBOX_WIDTH;
@@ -27,20 +47,37 @@ void CGoomba::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LP
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
 
 		if (e->t > 0 && e->t <= 1.0f) {
-			if (dynamic_cast<CGoomba*>(e->obj) || dynamic_cast<CKoopa*>(e->obj)) {
+			if ((dynamic_cast<CMario*>(e->obj)) || (dynamic_cast<CFireball*>(e->obj)) || (dynamic_cast<CTail*>(e->obj))) {
 				delete e;
 				continue;
 			}
 
-			if ((dynamic_cast<CBackgroundPlatform*>(e->obj)) || (dynamic_cast<CMario*>(e->obj))) {
-				if (dynamic_cast<CBackgroundPlatform*>(e->obj)) {
-					if (e->ny < 0)
-						coEvents.push_back(e);
+			if (dynamic_cast<CFireball*>(e->obj)) {
+				CFireball* fireball = dynamic_cast<CFireball*>(e->obj);
+				if (fireball->GetType() == FIREBALL_MARIO)
+					coEvents.push_back(e);
+				else
+					delete e;
+				continue;
+			}
+
+			if (dynamic_cast<CGoomba*>(e->obj)) {
+				if ((dynamic_cast<CGoomba*>(e->obj)->form == GOOMBA_FORM_PARA) || (this->form == GOOMBA_FORM_PARA)) {
+					delete e;
+					continue;
 				}
-				if (dynamic_cast<CMario*>(e->obj)) {
-					if (e->ny != 0)
-						coEvents.push_back(e);
+			}
+
+			if (dynamic_cast<CKoopa*>(e->obj)) {
+				if ((dynamic_cast<CKoopa*>(e->obj))->GetPara()) {
+					delete e;
+					continue;
 				}
+			}
+
+			if (dynamic_cast<CBackgroundPlatform*>(e->obj)) {
+				if (e->ny < 0)
+					coEvents.push_back(e);
 			}
 			else
 				coEvents.push_back(e);
@@ -53,10 +90,37 @@ void CGoomba::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LP
 
 void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 {
-	CGameObject::Update(dt); 
+	CMario* mario = dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->getPlayer();
+	CGameObject::Update(dt);
 
 	if (state != GOOMBA_STATE_FLATTENED)
 		vy += GOOMBA_GRAVITY * dt;
+
+	if (GetTickCount() - walk_start > GOOMBA_WALK_TIME) {
+		if ((state != GOOMBA_STATE_FLY) && (this->form == GOOMBA_FORM_PARA)) {
+			walk = 0;
+			walk_start = 0;
+			this->SetState(GOOMBA_STATE_FLY);
+		}
+	}
+
+	if ((mario->GetX() - this->x <= WIDTH * 16) && (this->x - mario->GetX() <= WIDTH * 16)) {
+		if ((form == GOOMBA_FORM_PARA) && (state != GOOMBA_STATE_FLY)) {
+			if (mario->GetX() > this->x)
+				this->SetState(GOOMBA_STATE_WALK_RIGHT);
+			else {
+				if (mario->GetX() < this->x)
+					this->SetState(GOOMBA_STATE_WALK_LEFT);
+			}
+		}
+	}
+
+	if (state == GOOMBA_STATE_FLATTENED) {
+		if (GetTickCount() - flattened_start > GOOMBA_FLATTENED_TIME) {
+			flattened_start = 0;
+			this->active = false;
+		}
+	}
 
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
@@ -69,13 +133,14 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		x += dx;
 		y += dy;
 
-		if (vx < 0 && x < min_x) {
-			x = min_x; vx = -vx;
+		if (state==GOOMBA_STATE_WALK_LEFT && x < min_x) {
+			x = min_x; SetState(GOOMBA_STATE_WALK_RIGHT);
 		}
 
-		if (vx > 0 && x > max_x) {
-			x = max_x; vx = -vx;
+		if (state==GOOMBA_STATE_WALK_RIGHT && x > max_x) {
+			x = max_x; SetState(GOOMBA_STATE_WALK_LEFT);
 		}
+		
 	}
 	else {
 		float min_tx, min_ty, nx = 0, ny;
@@ -84,14 +149,67 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 		FilterCollision(coEvents, coEventsResult, min_tx, min_ty, nx, ny, rdx, rdy);
 
+		x += min_tx * dx + nx * 0.4f;
+		y += min_ty * dy + ny * 0.4f;
+
+		if (ny != 0) vy = 0;
+
 		for (UINT i = 0; i < coEventsResult.size(); i++) {
 			LPCOLLISIONEVENT e = coEventsResult[i];
-			if (dynamic_cast<CGameObject*>(e->obj)) {
-				if (e->ny < 0) {
-					vy = 0;
+			if (dynamic_cast<CGoomba*>(e->obj)) {
+				CGoomba* goomba = dynamic_cast<CGoomba*>(e->obj);
+				if (state == GOOMBA_STATE_WALK_LEFT) {
+					goomba->SetState(GOOMBA_STATE_WALK_LEFT);
 				}
+				else {
+					if (state == GOOMBA_STATE_WALK_RIGHT) {
+						goomba->SetState(GOOMBA_STATE_WALK_RIGHT);
+					}
+				}
+			}
+
+			if (dynamic_cast<CKoopa*>(e->obj)) {
+				CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
+				if ((koopa->GetState() == KOOPA_STATE_PINBALL_LEFT) || (koopa->GetState() == KOOPA_STATE_PINBALL_RIGHT))
+					SetState(GOOMBA_STATE_DEATH);
+			}
+
+			if (dynamic_cast<CGameObject*>(e->obj)) {
 				if (e->nx != 0) {
-					vx = -vx;
+					if (state == GOOMBA_STATE_WALK_LEFT)
+						SetState(GOOMBA_STATE_WALK_RIGHT);
+					else {
+						if (state == GOOMBA_STATE_WALK_RIGHT)
+							SetState(GOOMBA_STATE_WALK_LEFT);
+					}
+				}
+
+				if (e->ny < 0) {
+					if (form == GOOMBA_FORM_NORMAL) {
+						if (dynamic_cast<CWoodPlatform*>(e->obj)) {
+							CWoodPlatform* platform = dynamic_cast<CWoodPlatform*>(e->obj);
+							this->min_x = platform->GetX();
+							this->max_x = platform->GetX() + platform->GetLength() - WIDTH;
+						}
+						if (dynamic_cast<CBackgroundPlatform*>(e->obj)) {
+							CBackgroundPlatform* platform = dynamic_cast<CBackgroundPlatform*>(e->obj);
+							this->min_x = platform->GetX();
+							this->max_x = platform->GetX() + platform->GetLength() - WIDTH;
+						}
+					}
+					else {
+						if (this->state == GOOMBA_STATE_FLY) {
+							if (this->bounces == 3) {
+								vy = -GOOMBA_SMALLBOUNCE_DEFLECT_SPEED;
+								this->bounces = 0;
+								SetState(prevState);
+							}
+							else {
+								vy = -GOOMBA_BIGBOUNCE_DEFLECT_SPEED;
+								bounces++;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -102,11 +220,34 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 void CGoomba::Render()
 {
-	int ani = GOOMBA_ANI_WALKING;
-	if ((state == GOOMBA_STATE_DEATH)||(state == GOOMBA_STATE_FLATTENED)) {
+	int ani = -1;
+	switch (state) {
+	case GOOMBA_STATE_WALK_LEFT:
+	case GOOMBA_STATE_WALK_RIGHT:
+		if (form == GOOMBA_FORM_NORMAL)
+			ani = GOOMBA_ANI_WALKING;
+		else
+			ani = GOOMBA_ANI_PARA_WALKING;
+		break;
+	case GOOMBA_STATE_FLY:
+		ani = GOOMBA_ANI_PARA_FLY;
+		break;
+	case GOOMBA_STATE_FLATTENED:
+	case GOOMBA_STATE_DEATH:
 		ani = GOOMBA_ANI_DEATH;
+		break;
 	}
-	animation_set->at(ani)->Render(x, y);
+
+	if (active) {
+		if (form == GOOMBA_FORM_PARA) {
+			if (state != GOOMBA_STATE_FLY)
+				animation_set->at(ani)->Render(x, y - 3);
+			else
+				animation_set->at(ani)->Render(x, y - 8);
+		}
+		else
+			animation_set->at(ani)->Render(x, y);
+	}
 
 	//RenderBoundingBox();
 }
@@ -120,13 +261,32 @@ void CGoomba::SetState(int state)
 		y += GOOMBA_BBOX_WIDTH - GOOMBA_BBOX_HEIGHT_DEAD + 1;
 		vx = 0;
 		vy = 0;
+		StartFlattened();
+		CGame::GetInstance()->AddScore(100);
 		break;
 	}
 	case GOOMBA_STATE_DEATH:
 		vx = 0;
 		vy = -GOOMBA_DIE_DEFLECT_SPEED;
+		CGame::GetInstance()->AddScore(100);
 		break;
-	case GOOMBA_STATE_WALK:
+	case GOOMBA_STATE_WALK_LEFT:
+		nx = -1;
 		vx = -GOOMBA_WALKING_SPEED;
+		if (form == GOOMBA_FORM_PARA) {
+			if (walk == 0)
+				StartWalk();
+		}
+		prevState = GOOMBA_STATE_WALK_LEFT;
+		break;
+	case GOOMBA_STATE_WALK_RIGHT:
+		nx = 1;
+		vx = GOOMBA_WALKING_SPEED;
+		if (form == GOOMBA_FORM_PARA) {
+			if (walk == 0)
+				StartWalk();
+		}
+		prevState = GOOMBA_STATE_WALK_RIGHT;
+		break;
 	}
 }

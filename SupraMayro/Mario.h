@@ -1,17 +1,31 @@
 #pragma once
 #include "GameObject.h"
 
-
-#define MARIO_MAX_WALKING_SPEED 0.12f
 #define MARIO_ACCELERATE_SPEED 0.003f
-#define MARIO_SPRINT_ACCELERATE_SPEED 0.004f
-#define MARIO_JUMP_SPEED_Y 0.45f
-#define MARIO_JUMP_DEFLECT_SPEED 0.2f
+#define MARIO_SPRINT_ACCELERATE_SPEED 0.01f
+#define SPRINT_CHARGE_MAX 7
+#define MARIO_MIN_SPEED 0.1f
+#define MAX_SPEED_PER_SPRINT_LEVEL 0.02f
+
+#define MARIO_JUMP_SPEED_Y 0.3f
+#define MARIO_INIT_FLY_SPEED 0.35f
+#define MARIO_FLY_SPEED 0.02f
+#define MARIO_FLY_X_DECELERATE_SPEED 0.012f
+#define MARIO_RACCOON_Y_RESISTANCE 0.0015f
+#define MARIO_JUMP_ACCELERATE_SPEED 0.0014f
+#define MARIO_JUMP_DEFLECT_SPEED 0.25f
 #define MARIO_GRAVITY 0.002f
-#define MARIO_GRAVITY_FLY 0.02f
+#define MARIO_GRAVITY_FLY 0.05f
 #define MARIO_DIE_DEFLECT_SPEED 0.5f
 
 #define INVULN_TIME 1500
+#define EMERGE_TIME 500
+#define EMERGE_TIME_SUPER 800
+#define ATTACK_TIME_RACCOON 300
+#define ATTACK_TIME_FIRE 180
+#define SPRINT_CHARGE_CYCLE 400
+#define FLAP_TIME 320
+#define FLY_DURATION 5000
 
 #define MARIO_STATE_IDLE 0
 
@@ -20,18 +34,21 @@
 
 #define MARIO_STATE_JUMP 200
 
-#define MARIO_STATE_SPRINT_LEFT 300
-#define MARIO_STATE_SPRINT_RIGHT 350
-
 #define MARIO_STATE_SLIDE 400
 
 #define MARIO_STATE_CROUCH 500
 
 #define MARIO_STATE_ATTACK 600
 
-#define MARIO_STATE_FLY 700
+#define MARIO_STATE_FLAP 700
 
 #define MARIO_STATE_DEATH 800
+
+#define MARIO_STATE_WARPING_UP 900
+#define MARIO_STATE_WARPING_DOWN 950
+
+#define MARIO_STATE_EMERGING_UP 1000
+#define MARIO_STATE_EMERGING_DOWN 1050
 
 #define MARIO_FORM_NORMAL 1
 #define MARIO_FORM_SUPER 2
@@ -100,6 +117,11 @@
 
 #define MARIO_ANI_DEATH 52
 
+#define MARIO_ANI_WARPING_NORMAL 53
+#define MARIO_ANI_WARPING_SUPER 54
+#define MARIO_ANI_WARPING_RACCOON 55
+#define MARIO_ANI_WARPING_FIRE 56
+
 #define MARIO_NORMAL_BBOX_WIDTH 12
 #define MARIO_NORMAL_BBOX_HEIGHT 15
 #define MARIO_SUPER_BBOX_WIDTH 15
@@ -111,29 +133,48 @@ class CMario :public CGameObject {
 	int form;
 	float start_x, start_y;
 
-	bool IsGrounded, IsAttacking, IsCarrying;
+	int SprintChargeLevel;
+
+	bool IsGrounded, IsAttacking, IsCarrying, IsChargingJump, IsHoldingDownW, IsChargingSprint, IsFlying, IsFlapping;
 	int AttackTime;
 	int invuln;
 	DWORD invuln_start;
+	DWORD emerge_start;
+	DWORD attack_start;
+	int sprint;
+	DWORD sprint_start;
+	DWORD fly_start;
+	DWORD flap_start;
 public:
 	CMario(float x = 0.0f, float y = 0.0f);
 	virtual void Update(DWORD dt, vector<LPGAMEOBJECT>* colliable_objects = NULL);
 	virtual void Render();
 
 	void SetState(int state);
-	void SetPCForm(int form) { this->form = form; }
+	void SetPCForm(int form);
 	int GetPCForm() { return this->form; }
 	int GetNX() { return this->nx; }
+	float GetVY() { return this->vy; }
 	int GetAttackTime(){ return this->AttackTime; }
+	int GetCharge() { return this->SprintChargeLevel; }
 
-	bool GetGravStatus();
-	bool GetAttackStatus();
-	bool GetCarryStatus();
+	bool GetGravStatus() { return this->IsGrounded; }
+	bool GetAttackStatus() { return this->IsAttacking; }
+	bool GetCarryStatus() { return this->IsCarrying; }
 	void SetCarryStatus(bool result) { this->IsCarrying = result; }
+	void SetWButtonStatus(bool result) { this->IsHoldingDownW = result; }
+	void SetJumpCharge(bool value) { this->IsChargingJump = value; }
+	void SetSprintCharge(bool value) { this->IsChargingSprint = value; }
+	void ToggleSprint() { if (sprint == 0) sprint = 1; }
+
 	void StartInvuln() { invuln = 1; invuln_start = GetTickCount(); }
+	void StartEmerge() { emerge_start = GetTickCount(); }
+	void StartAttack() { attack_start = GetTickCount(); }
+	void StartSprint() { sprint_start = GetTickCount(); }
+	void StartFly() { fly_start = GetTickCount(); }
+	void StartFlapping() { flap_start = GetTickCount(); }
 
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
-	void Reset();
 
 	virtual void GetBoundingBox(float& left, float& top, float& right, float& bottom);
 };

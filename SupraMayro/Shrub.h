@@ -19,5 +19,6 @@ protected:
 	vector<int> data;
 public:
 	CShrub(vector<int> info);
+	void Update(DWORD dt) { return; }
 	void Render();
 };

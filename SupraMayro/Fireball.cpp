@@ -2,6 +2,49 @@
 #include "Fireball.h"
 #include "Goomba.h"
 #include "Koopa.h"
+#include "PiranhaPlant.h"
+#include "Game.h"
+
+CFireball::CFireball(CMario* player, int type) {
+	float fx, fy;
+	player->GetPosition(fx, fy);
+	this->active = true;
+	this->type = type;
+	this->x1 = this->y1 = NULL;
+
+	if (player->GetNX() > 0) {
+		this->Direction = true;
+		this->SetPosition(fx + 11, fy + 15);
+	}
+	else {
+		this->Direction = false;
+		this->SetPosition(fx, fy + 15);
+	}
+
+	this->SetAnimationSet((CAnimationSets::GetInstance())->Get(10));
+}
+
+CFireball::CFireball(CGameObject* host, float x, float y, int type, bool dir) {
+	float fx, fy;
+	host->GetPosition(fx, fy);
+	this->active = true;
+	this->type = type;
+	this->x1 = x;
+	this->y1 = y;
+
+	if (dir) {
+		this->Direction = true;
+		this->SetPosition(fx + 11, fy + 10);
+	}
+	else {
+		this->Direction = false;
+		this->SetPosition(fx, fy + 10);
+	}
+
+	this->GetInitBoundaries();
+
+	this->SetAnimationSet((CAnimationSets::GetInstance())->Get(10));
+}
 
 void CFireball::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents) {
 	for (UINT i = 0; i < coObjects->size(); i++)
@@ -9,18 +52,22 @@ void CFireball::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
 
 		if (e->t > 0 && e->t <= 1.0f) {
-			if (dynamic_cast<CMario*>(e->obj) || dynamic_cast<CFireball*>(e->obj)) {
-				delete e;
-				continue;
-			}
+			if (type == FIREBALL_MARIO) {
+				if (dynamic_cast<CFireball*>(e->obj) || dynamic_cast<CMario*>(e->obj)) {
+					delete e;
+					continue;
+				}
 
-			if (dynamic_cast<CBackgroundPlatform*>(e->obj)) {
-				if (e->ny < 0)
+				if (dynamic_cast<CBackgroundPlatform*>(e->obj)) {
+					if (e->ny < 0)
+						coEvents.push_back(e);
+				}
+				else {
 					coEvents.push_back(e);
+				}
 			}
-			else {
-				coEvents.push_back(e);
-			}
+			else
+				delete e;
 		}
 		else
 			delete e;
@@ -31,11 +78,13 @@ void CFireball::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<
 void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 	CGameObject::Update(dt);
 
-	vy += FIREBALL_GRAVITY * dt;
-	if (Direction)
-		vx = FIREBALL_SPEED;
-	else
-		vx = -FIREBALL_SPEED;
+	if (type == FIREBALL_MARIO) {
+		vy += FIREBALL_GRAVITY * dt;
+		if (Direction)
+			vx = FIREBALL_SPEED;
+		else
+			vx = -FIREBALL_SPEED;
+	}
 
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
@@ -45,8 +94,22 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 	CalcPotentialCollisions(coObjects, coEvents);
 
 	if (coEvents.size() == 0) {
-		x += dx;
-		y += dy;
+		if (type == FIREBALL_MARIO) {
+			x += dx;
+			y += dy;
+		}
+		else {
+			float dirX, dirY;
+			dirX = x1 - x0;
+			dirY = y1 - y0;
+
+			float hyp = sqrt(dirX * dirX + dirY * dirY);
+			dirX /= hyp;
+			dirY /= hyp;
+
+			x += dirX * FIREBALL_PIRANHA_SPEED;
+			y += dirY * FIREBALL_PIRANHA_SPEED;
+		}
 	}
 	else {
 		float min_tx, min_ty, nx = 0, ny;
@@ -57,29 +120,33 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 
 		for (UINT i = 0; i < coEventsResult.size(); i++) {
 			LPCOLLISIONEVENT e = coEventsResult[i];
+
 			if (dynamic_cast<CGameObject*>(e->obj)) {
-				if (e->ny < 0) {
+				if (e->ny < 0)
 					vy = -FIREBALL_BOUNCE_HEIGHT;
-					Bounces++;
-					if (Bounces == 3)
-						render = false;
-				}
 				if (e->nx != 0)
-					render = false;
+					active = false;
 			}
+
+			if (dynamic_cast<CPiranhaPlant*>(e->obj)) {
+				CPiranhaPlant* plant = dynamic_cast<CPiranhaPlant*>(e->obj);
+				plant->SetActive(false);
+				active = false;
+				CGame::GetInstance()->AddScore(100);
+			}
+
 			if (dynamic_cast<CGoomba*>(e->obj)) {
 				CGoomba* goomba = dynamic_cast<CGoomba*>(e->obj);
-				if (goomba->GetState() == GOOMBA_STATE_WALK) {
-					goomba->SetState(GOOMBA_STATE_DEATH);
-					render = false;
-				}
+				goomba->SetEnemyForm(GOOMBA_FORM_NORMAL);
+				goomba->SetState(GOOMBA_STATE_DEATH);
+				active = false;
 			}
+
 			if (dynamic_cast<CKoopa*>(e->obj)) {
 				CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
-				if ((koopa->GetState() != KOOPA_STATE_DEATH)) {
-					koopa->SetState(KOOPA_STATE_DEATH);
-					render = false;
-				}
+				koopa->SetPara(false);
+				koopa->SetState(KOOPA_STATE_DEATH);
+				active = false;
 			}
 		}
 	}
@@ -92,16 +159,19 @@ void CFireball::Render() {
 		ani = FIREBALL_RIGHT;
 	else
 		ani = FIREBALL_LEFT;
-	if (render)
+
+	if (active)
 		animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }
 
 void CFireball::GetBoundingBox(float& left, float& top, float& right, float& bottom) {
-	left = x;
-	top = y;
-	right = x + FIREBALL_BBOX_WIDTH;
-	bottom = y + FIREBALL_BBOX_WIDTH;
+	if (active) {
+		left = x;
+		top = y;
+		right = x + FIREBALL_BBOX_WIDTH;
+		bottom = y + FIREBALL_BBOX_WIDTH;
+	}
 }
 
 CFireball::~CFireball() {

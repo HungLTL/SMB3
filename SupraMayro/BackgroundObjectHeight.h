@@ -8,5 +8,7 @@ public:
 	CBackgroundObjectHeight(int height) :CBackgroundObject() {
 		this->height = height;
 	}
+
+	void Update(DWORD dt) { return; }
 	virtual void Render();
 };

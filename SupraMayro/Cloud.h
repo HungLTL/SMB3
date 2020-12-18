@@ -20,5 +20,6 @@ public:
 		FillObject();
 	}
 	virtual void FillObject();
+	void Update(DWORD dt) { return; }
 	virtual void Render();
 };

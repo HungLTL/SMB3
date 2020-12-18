@@ -36,10 +36,12 @@ struct CCollisionEvent {
 class CGameObject {
 protected:
 	float x, y;
+	float x0, y0;
 	float dx, dy;
 	float vx, vy;
 	int nx;
 	int state;
+	bool active;
 
 	DWORD dt;
 	LPANIMATION_SET animation_set;
@@ -50,6 +52,12 @@ public:
 	void GetSpeed(float& vx, float& vy) { vx = this->vx; vy = this->vy; }
 
 	int GetState() { return this->state; }
+	int GetX() { return this->x; }
+
+	void GetInitBoundaries() { this->x0 = this->x; this->y0 = this->y; }
+
+	void ModX(float X) { this->x += X; }
+	void ModY(float Y) { this->y += Y; }
 
 	void RenderBoundingBox();
 

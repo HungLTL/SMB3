@@ -1,11 +1,7 @@
-﻿  PlayScene.cpp
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(82,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(104,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(122,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(123,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(185,21): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(304,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(307,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(314,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(317,20): warning C4018: '<': signed/unsigned mismatch
+﻿  Mario.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(55,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(165,37): warning C4018: '>=': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(191,37): warning C4018: '>=': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(806,12): warning C4305: '=': truncation from 'double' to 'float'
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(812,13): warning C4305: '=': truncation from 'double' to 'float'
   SupraMayro.vcxproj -> E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe
