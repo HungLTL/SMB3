@@ -1,7 +1,0 @@
-﻿  Mario.cpp
-E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(55,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(165,37): warning C4018: '>=': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(191,37): warning C4018: '>=': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(806,12): warning C4305: '=': truncation from 'double' to 'float'
-E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(812,13): warning C4305: '=': truncation from 'double' to 'float'
-  SupraMayro.vcxproj -> E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe
