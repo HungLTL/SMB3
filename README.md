@@ -1,12 +1,13 @@
 Poorly-implemented remake of one of the best platforming games ever made by an idiot who has absolutely no prior experience to game development and advanced C++. The owner of this repository should be ashamed.
 
 UPDATE v1.2:
-- Mario functions fleshed out: Now has the ability to carry koopa shells, charging up jumps and sprints, can now fly properly, and a tail that can identify overlaps instead of collisions
+- Mario functions fleshed out: Now has the ability to carry koopa shells, charge up jumps and sprints, can now fly properly, and a tail that can identify overlaps instead of collisions
 - Added paragoombas, koopa paratroopas and piranha plants
 - Certain pipes can now warp to the World 1-1 Secret Zone
 - Added power ups, coins, the P-Switch and the End-of-World Roulette
 - Added splash screen and overworld map
 - Added HUD
+- Removed clutter folders (.vs and Debug)
 
 Controls:
 
