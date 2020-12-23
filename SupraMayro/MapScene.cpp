@@ -12,6 +12,8 @@ CMapScene::CMapScene(int id, LPCWSTR filePath) :CScene(id, filePath) {
 	mario = NULL;
 	destination_scene = NULL;
 	hud = NULL;
+	gameover = NULL;
+	IsGameOver = false;
 }
 
 #define SCENE_SECTION_UNKNOWN -1
@@ -227,17 +229,29 @@ void CMapScene::Update(DWORD dt) {
 
 	hud->Update(dt);
 
+	if ((CGame::GetInstance()->GetLives() == 0) && (!IsGameOver)) {
+		IsGameOver = true;
+		CGameOver* game_over = new CGameOver();
+		game_over->SetPosition(64, 64);
+		gameover = (CGameOver*)game_over;
+		bg_objects.push_back(game_over);
+	}
+
 	if (mario == NULL)
 		return;
 }
 
 void CMapScene::Render() {
 	for (int j = 0; j < bg_objects.size(); j++) {
+		if (dynamic_cast<CGameOver*>(bg_objects.at(j)))
+			continue;
 		bg_objects[j]->Render();
 	}
 	for (int i = 0; i < objects.size(); i++) {
 		objects[i]->Render();
 	}
+	if (gameover != NULL)
+		gameover->Render();
 }
 
 void CMapScene::Unload() {
@@ -251,46 +265,62 @@ void CMapScene::Unload() {
 	bg_objects.clear();
 	mario = NULL;
 	hud = NULL;
+	gameover = NULL;
+	IsGameOver = false;
 }
 
 void CMapSceneKeyHandler::OnKeyDown(int keyCode) {
 	CMapMario* player = ((CMapScene*)scene)->GetPlayer();
+	CGameOver* game_over = ((CMapScene*)scene)->GetGameOverInterface();
 
-	if (player->IsIdle()) {
+	if (((CMapScene*)scene)->GetGameStatus()){
 		switch (keyCode) {
-		case DIK_A:
-			player->SetState(STATE_MOVE_LEFT);
-			break;
 		case DIK_W:
-			player->SetState(STATE_MOVE_UP);
-			break;
-		case DIK_D:
-			player->SetState(STATE_MOVE_RIGHT);
-			break;
 		case DIK_S:
-			player->SetState(STATE_MOVE_DOWN);
-			break;
-		case DIK_1:
-			player->SetPCForm(FORM_NORMAL);
-			CGame::GetInstance()->SetPrevForm(player->GetPCForm());
-			break;
-		case DIK_2:
-			player->SetPCForm(FORM_SUPER);
-			CGame::GetInstance()->SetPrevForm(player->GetPCForm());
-			break;
-		case DIK_3:
-			player->SetPCForm(FORM_RACCOON);
-			CGame::GetInstance()->SetPrevForm(player->GetPCForm());
-			break;
-		case DIK_4:
-			player->SetPCForm(FORM_FIRE);
-			CGame::GetInstance()->SetPrevForm(player->GetPCForm());
+			game_over->ChangeOption();
 			break;
 		case DIK_K:
-			int scene_id = ((CMapScene*)scene)->GetDestinationScene();
-			if (scene_id != NULL)
-				CGame::GetInstance()->SwitchScene(scene_id);
+			game_over->EnforceOption();
 			break;
+		}
+	}
+	else {
+		if (player->IsIdle()) {
+			switch (keyCode) {
+			case DIK_A:
+				player->SetState(STATE_MOVE_LEFT);
+				break;
+			case DIK_W:
+				player->SetState(STATE_MOVE_UP);
+				break;
+			case DIK_D:
+				player->SetState(STATE_MOVE_RIGHT);
+				break;
+			case DIK_S:
+				player->SetState(STATE_MOVE_DOWN);
+				break;
+			case DIK_1:
+				player->SetPCForm(FORM_NORMAL);
+				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
+				break;
+			case DIK_2:
+				player->SetPCForm(FORM_SUPER);
+				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
+				break;
+			case DIK_3:
+				player->SetPCForm(FORM_RACCOON);
+				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
+				break;
+			case DIK_4:
+				player->SetPCForm(FORM_FIRE);
+				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
+				break;
+			case DIK_K:
+				int scene_id = ((CMapScene*)scene)->GetDestinationScene();
+				if (scene_id != NULL)
+					CGame::GetInstance()->SwitchScene(scene_id);
+				break;
+			}
 		}
 	}
 }

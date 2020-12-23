@@ -3,6 +3,7 @@
 0	Textures\overworld.png	0	0	255
 10	Textures\overworld_icons.png	64	128	0
 20	Textures\hud.png	255	0	255
+30	Textures\gameover.png	68	34	0
 
 # id	left	top	right	bottom	texture_id
 [SPRITES]
@@ -110,6 +111,10 @@
 66	3	3	155	31	20
 67	220	107	236	123	20
 
+#gameover
+68	5	6	133	70	30
+69	52	71	58	78	30
+
 # ani_id	sprite1_id	time1	sprite2_id	time2	...
 [ANIMATIONS]
 # mario
@@ -196,6 +201,10 @@
 416	66	100
 417	67	100
 
+# game over
+500	68	100
+501	69	100
+
 [ANIMATION_SETS]
 # MARIO
 0	100	101	102	103
@@ -251,8 +260,11 @@
 29	317
 30	318
 
-#HUD
+# HUD
 100	400	401	402	403	404	405	406	407	408	409	410	411	412	413	414	415	416	417
+
+# GAME OVER
+50	500	501
 
 [OBJECTS]
 4	0	0	17	16	16

@@ -23,7 +23,6 @@ public:
 
 	void SetOrigins(bool value) { this->TransformedFromBlock = value; }
 	bool GetOrigins() { return this->TransformedFromBlock; }
-	bool GetStatus() { return this->active; }
 
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
 

@@ -12,14 +12,17 @@
 #include "BackgroundObject.h"
 #include "BackgroundTile.h"
 #include "BackgroundObjectRect.h"
+#include "GameOver.h"
 
 #include "HUD.h"
 
 class CMapScene :public CScene {
 	CMapMario* mario;
 	CHUD* hud;
+	CGameOver* gameover;
 
 	int destination_scene;
+	bool IsGameOver;
 
 	vector<LPGAMEOBJECT> objects;
 	vector<LPBGOBJECT> bg_objects;
@@ -37,7 +40,9 @@ public:
 	void Render();
 	void Unload();
 
+	bool GetGameStatus() { return IsGameOver; }
 	CMapMario* GetPlayer() { return this->mario; }
+	CGameOver* GetGameOverInterface() { return this->gameover; }
 	void SetDestinationScene(int value) { this->destination_scene = value; }
 	int GetDestinationScene() { return this->destination_scene; }
 };

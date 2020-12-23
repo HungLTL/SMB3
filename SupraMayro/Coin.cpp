@@ -5,9 +5,9 @@
 #include "Koopa.h"
 
 #include "Game.h"
+#include "PlayScene.h"
 
 CCoin::CCoin(int type) {
-	this->active = true;
 	this->TransformedFromBlock = false;
 	if (type == 0)
 		SetState(COIN_STATE_STATIC);
@@ -63,7 +63,7 @@ void CCoin::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 	if (state == COIN_STATE_ACTIVE) {
 		vy += COIN_GRAVITY;
 		if (y > y0)
-			this->active = false;
+			dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 	}
 
 	vector<LPCOLLISIONEVENT> coEvents;
@@ -85,9 +85,9 @@ void CCoin::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 		for (UINT i = 0; i < coEventsResult.size(); i++) {
 			LPCOLLISIONEVENT e = coEventsResult[i];
 			if (dynamic_cast<CMario*>(e->obj)) {
-				this->active = false;
 				CGame::GetInstance()->AddCoin();
 				CGame::GetInstance()->AddScore(50);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 			}
 
 			if (dynamic_cast<CPBlock*>(e->obj)) {
@@ -118,26 +118,24 @@ void CCoin::Render() {
 	default:
 		return;
 	}
-	if (active)
-		animation_set->at(ani)->Render(x, y);
+
+	animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }
 
 void CCoin::GetBoundingBox(float& l, float& t, float& r, float& b) {
-	if (active) {
-		if (state == COIN_STATE_STATIC) {
-			l = x + 1;
-			t = y + 1;
-			r = l + COIN_BBOX_WIDTH;
-			b = t + COIN_BBOX_HEIGHT;
-		}
-		else {
-			if (state == COIN_STATE_DORMANT) {
-				l = x + 5;
-				t = y;
-				r = l + COIN_BBOX_DORMANT_WIDTH;
-				b = y + COIN_BBOX_HEIGHT;
-			}
+	if (state == COIN_STATE_STATIC) {
+		l = x + 1;
+		t = y + 1;
+		r = l + COIN_BBOX_WIDTH;
+		b = t + COIN_BBOX_HEIGHT;
+	}
+	else {
+		if (state == COIN_STATE_DORMANT) {
+			l = x + 5;
+			t = y;
+			r = l + COIN_BBOX_DORMANT_WIDTH;
+			b = y + COIN_BBOX_HEIGHT;
 		}
 	}
 }

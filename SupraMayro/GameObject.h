@@ -41,7 +41,6 @@ protected:
 	float vx, vy;
 	int nx;
 	int state;
-	bool active;
 
 	DWORD dt;
 	LPANIMATION_SET animation_set;

@@ -16,6 +16,7 @@
 
 class CTail :public CGameObject {
 protected:
+	bool active;
 	int attack;
 	DWORD attack_start;
 
@@ -26,7 +27,7 @@ public:
 	bool CheckOverlap(LPGAMEOBJECT obj);
 
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* colliable_objects = NULL);
-	void Render() {}
+	void Render() { return; }
 	void StartAttack() { attack = 1; attack_start = GetTickCount(); }
 
 	void GetBoundingBox(float& left, float& top, float& right, float& bottom);

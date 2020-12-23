@@ -5,7 +5,6 @@
 
 CPiranhaPlant::CPiranhaPlant(int type) {
 	this->type = type;
-	this->active = true;
 	this->nx = -1;
 	this->IsAttacking = false;
 	this->SetState(PIRANHA_STATE_DORMANT);
@@ -44,8 +43,9 @@ void CPiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 		this->nx = 1;
 
 	if (type == PIRANHA_TYPE_FIRE) {
-		if ((IsAttacking) && (active)) {
-			float cx, cy, scrnw, scrnh;
+		if (IsAttacking) {
+			float cx, cy;
+			int scrnw, scrnh;
 			CGame::GetInstance()->GetCamPos(cx, cy);
 			scrnw = CGame::GetInstance()->GetScreenWidth();
 			scrnh = CGame::GetInstance()->GetScreenHeight();
@@ -105,17 +105,13 @@ void CPiranhaPlant::Render() {
 		else
 			ani = PIRANHA_ANI_LEFT;
 	}
-
-	if (active)
-		animation_set->at(ani)->Render(x, y);
+	animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }
 
 void CPiranhaPlant::GetBoundingBox(float& l, float& t, float& r, float& b) {
-	if (active) {
-		l = x;
-		t = y;
-		r = x + PIRANHA_BBOX_WIDTH;
-		b = y + PIRANHA_BBOX_HEIGHT;
-	}
+	l = x;
+	t = y;
+	r = x + PIRANHA_BBOX_WIDTH;
+	b = y + PIRANHA_BBOX_HEIGHT;
 }

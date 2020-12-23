@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "Textures.h"
 #include "Scene.h"
+#include "Grid.h"
 
 #include "GameObject.h"
 #include "BackgroundPlatform.h"
@@ -42,10 +43,12 @@ class CPlayScene :public CScene {
 	CMario* player;
 	CHUD* hud;
 
+	CGrid* grid;
+
 	vector<LPGAMEOBJECT> objects;
 	vector<LPBGOBJECT> bg_objects;
 
-	float minX, maxX;
+	float minX, maxX, minY, maxY;
 	bool CourseCompleted;
 
 	int timer;
@@ -58,7 +61,7 @@ class CPlayScene :public CScene {
 	void _ParseSection_ANIMATION_SETS(string line);
 	void _ParseSection_OBJECTS(string line);
 public:
-	CPlayScene(int id, LPCWSTR filePath, float x, float X);
+	CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y);
 
 	virtual void Load();
 	virtual void Update(DWORD dt);
@@ -67,10 +70,10 @@ public:
 
 	CMario* getPlayer() { return player; }
 	vector<LPGAMEOBJECT> getObjects() { return objects; }
-	void updateObjects(vector<LPGAMEOBJECT> vec) { objects = vec; }
 
 	void PushObject(LPGAMEOBJECT obj) { objects.push_back(obj); }
 	void Replace(int i, LPGAMEOBJECT obj) { objects[i] = obj; }
+	void RemoveObject(LPGAMEOBJECT obj) { objects.erase(std::remove(objects.begin(), objects.end(), obj), objects.end()); }
 
 	void StartTimer() { timer = 1; timer_start = GetTickCount(); }
 	void EndCourse();

@@ -22,18 +22,15 @@ void CPSwitch::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			for (UINT i = 1; i < (current_scene->getObjects()).size(); i++) {
 				if (dynamic_cast<CCoin*>((current_scene->getObjects())[i])) {
 					CCoin* coin = dynamic_cast<CCoin*>((current_scene->getObjects())[i]);
+					if (coin->GetOrigins()) {
+						float fx, fy;
+						coin->GetPosition(fx, fy);
 
-					if (coin->GetStatus()) {
-						if (coin->GetOrigins()) {
-							float fx, fy;
-							coin->GetPosition(fx, fy);
+						CGoldBlock* block = new CGoldBlock();
+						block->SetPosition(fx, fy);
+						block->SetAnimationSet(CAnimationSets::GetInstance()->Get(2));
 
-							CGoldBlock* block = new CGoldBlock();
-							block->SetPosition(fx, fy);
-							block->SetAnimationSet(CAnimationSets::GetInstance()->Get(2));
-
-							dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(i, block);
-						}
+						dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(i, block);
 					}
 				}
 			}
@@ -88,17 +85,15 @@ void CPSwitch::SetState(int state) {
 		for (UINT i = 1; i < (current_scene->getObjects()).size(); i++) {
 			if (dynamic_cast<CGoldBlock*>((current_scene->getObjects())[i])) {
 				CGoldBlock* block = dynamic_cast<CGoldBlock*>((current_scene->getObjects())[i]);
-				if (block->GetState()) {
-					float fx, fy;
-					block->GetPosition(fx, fy);
+				float fx, fy;
+				block->GetPosition(fx, fy);
 
-					CCoin* coin = new CCoin(0);
-					coin->SetOrigins(true);
-					coin->SetPosition(fx, fy);
-					coin->SetAnimationSet(CAnimationSets::GetInstance()->Get(15));
+				CCoin* coin = new CCoin(0);
+				coin->SetOrigins(true);
+				coin->SetPosition(fx, fy);
+				coin->SetAnimationSet(CAnimationSets::GetInstance()->Get(15));
 
-					dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(i, coin);
-				}
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(i, coin);
 			}
 		}
 

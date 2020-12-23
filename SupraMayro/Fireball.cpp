@@ -1,14 +1,16 @@
 #include <algorithm>
 #include "Fireball.h"
+#include "Coin.h"
+#include "PowerUp.h"
 #include "Goomba.h"
 #include "Koopa.h"
 #include "PiranhaPlant.h"
 #include "Game.h"
+#include "PlayScene.h"
 
 CFireball::CFireball(CMario* player, int type) {
 	float fx, fy;
 	player->GetPosition(fx, fy);
-	this->active = true;
 	this->type = type;
 	this->x1 = this->y1 = NULL;
 
@@ -27,7 +29,6 @@ CFireball::CFireball(CMario* player, int type) {
 CFireball::CFireball(CGameObject* host, float x, float y, int type, bool dir) {
 	float fx, fy;
 	host->GetPosition(fx, fy);
-	this->active = true;
 	this->type = type;
 	this->x1 = x;
 	this->y1 = y;
@@ -53,7 +54,7 @@ void CFireball::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<
 
 		if (e->t > 0 && e->t <= 1.0f) {
 			if (type == FIREBALL_MARIO) {
-				if (dynamic_cast<CFireball*>(e->obj) || dynamic_cast<CMario*>(e->obj)) {
+				if (dynamic_cast<CFireball*>(e->obj) || dynamic_cast<CMario*>(e->obj) || dynamic_cast<CPowerUp*>(e->obj) || dynamic_cast<CCoin*>(e->obj)) {
 					delete e;
 					continue;
 				}
@@ -86,6 +87,15 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			vx = -FIREBALL_SPEED;
 	}
 
+	float cx, cy;
+	int scrw, scrh;
+	CGame::GetInstance()->GetCamPos(cx, cy);
+	scrh = CGame::GetInstance()->GetScreenHeight();
+	scrw = CGame::GetInstance()->GetScreenWidth();
+
+	if((x < cx - FIREBALL_BBOX_WIDTH) || (x > cx + scrw) || (y < cy - FIREBALL_BBOX_WIDTH) || (y > cy + scrw))
+		dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
+	
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
 
@@ -125,13 +135,12 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 				if (e->ny < 0)
 					vy = -FIREBALL_BOUNCE_HEIGHT;
 				if (e->nx != 0)
-					active = false;
+					dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 			}
 
 			if (dynamic_cast<CPiranhaPlant*>(e->obj)) {
-				CPiranhaPlant* plant = dynamic_cast<CPiranhaPlant*>(e->obj);
-				plant->SetActive(false);
-				active = false;
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(e->obj);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 				CGame::GetInstance()->AddScore(100);
 			}
 
@@ -139,14 +148,14 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 				CGoomba* goomba = dynamic_cast<CGoomba*>(e->obj);
 				goomba->SetEnemyForm(GOOMBA_FORM_NORMAL);
 				goomba->SetState(GOOMBA_STATE_DEATH);
-				active = false;
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 			}
 
 			if (dynamic_cast<CKoopa*>(e->obj)) {
 				CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
 				koopa->SetPara(false);
 				koopa->SetState(KOOPA_STATE_DEATH);
-				active = false;
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 			}
 		}
 	}
@@ -160,18 +169,14 @@ void CFireball::Render() {
 	else
 		ani = FIREBALL_LEFT;
 
-	if (active)
-		animation_set->at(ani)->Render(x, y);
-	//RenderBoundingBox();
+	animation_set->at(ani)->Render(x, y);
 }
 
 void CFireball::GetBoundingBox(float& left, float& top, float& right, float& bottom) {
-	if (active) {
-		left = x;
-		top = y;
-		right = x + FIREBALL_BBOX_WIDTH;
-		bottom = y + FIREBALL_BBOX_WIDTH;
-	}
+	left = x;
+	top = y;
+	right = x + FIREBALL_BBOX_WIDTH;
+	bottom = y + FIREBALL_BBOX_WIDTH;
 }
 
 CFireball::~CFireball() {

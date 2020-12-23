@@ -17,7 +17,7 @@
 #include "Game.h"
 
 CMario::CMario(float x, float y) :CGameObject() {
-	form = MARIO_FORM_NORMAL;
+	SetPCForm(MARIO_FORM_NORMAL);
 	SetState(MARIO_STATE_IDLE);
 
 	SprintChargeLevel = 0;
@@ -139,9 +139,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			}
 		}
 	}
-
-	if (x < 0)
-		x = 0;
 
 	if (vy != 0)
 		IsGrounded = false;
@@ -269,13 +266,11 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			}
 
 			if (dynamic_cast<CGoldBlock*>(e->obj)) {
-				if (form == MARIO_FORM_NORMAL) {
-					continue;
-				}
-				else {
-					CGoldBlock* block = dynamic_cast<CGoldBlock*>(e->obj);
-					if (e->ny > 0)
-						block->ChangeState();
+				if (e->ny > 0) {
+					if (form == MARIO_FORM_NORMAL)
+						continue;
+					else
+						dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(e->obj);
 				}
 			}
 
@@ -315,7 +310,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						vy = -MARIO_JUMP_DEFLECT_SPEED;
 					}
 				}
-				else if (e->nx != 0)
+				else
 				{
 					if (invuln == 0)
 					{
@@ -323,34 +318,36 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 						{
 							switch (form) {
 							case MARIO_FORM_RACCOON:
-								if (IsAttacking)
-									IsAttacking = false;
 							case MARIO_FORM_FIRE:
-								form = MARIO_FORM_SUPER;
+								SetPCForm(MARIO_FORM_SUPER);
 								StartInvuln();
 								break;
 							case MARIO_FORM_SUPER:
-								form = MARIO_FORM_NORMAL;
+								SetPCForm(MARIO_FORM_NORMAL);
 								StartInvuln();
 								break;
 							case MARIO_FORM_NORMAL:
 								SetState(MARIO_STATE_DEATH);
+								break;
 							}
 						}
 					}
+					else
+						y--;
 				}
 			}
+
 			if (dynamic_cast<CKoopa*>(e->obj)) {
 				CKoopa* koopa = dynamic_cast<CKoopa*>(e->obj);
 
 				if (koopa->GetState() == KOOPA_STATE_DORMANT) {
 					if (!IsCarrying) {
-						if (e->nx != 0) {
+						if (e->nx != 0){
 							StartInvuln();
-							if (this->nx > 0)
-								koopa->SetState(KOOPA_STATE_PINBALL_RIGHT);
-							else
-								koopa->SetState(KOOPA_STATE_PINBALL_LEFT);
+						if (this->nx > 0)
+							koopa->SetState(KOOPA_STATE_PINBALL_RIGHT);
+						else
+							koopa->SetState(KOOPA_STATE_PINBALL_LEFT);
 						}
 					}
 					else {
@@ -398,18 +395,21 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 							switch (form) {
 							case MARIO_FORM_RACCOON:
 							case MARIO_FORM_FIRE:
-								form = MARIO_FORM_SUPER;
+								SetPCForm(MARIO_FORM_SUPER);
 								StartInvuln();
 								break;
 							case MARIO_FORM_SUPER:
-								form = MARIO_FORM_NORMAL;
+								SetPCForm(MARIO_FORM_NORMAL);
 								StartInvuln();
 								break;
 							case MARIO_FORM_NORMAL:
 								SetState(MARIO_STATE_DEATH);
+								break;
 							}
 						}
 					}
+					else
+						y--;
 				}
 			}
 
@@ -419,15 +419,16 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 					switch (form) {
 					case MARIO_FORM_RACCOON:
 					case MARIO_FORM_FIRE:
-						form = MARIO_FORM_SUPER;
+						SetPCForm(MARIO_FORM_SUPER);
 						StartInvuln();
 						break;
 					case MARIO_FORM_SUPER:
-						form = MARIO_FORM_NORMAL;
+						SetPCForm(MARIO_FORM_NORMAL);
 						StartInvuln();
 						break;
 					case MARIO_FORM_NORMAL:
 						SetState(MARIO_STATE_DEATH);
+						break;
 					}
 				}
 			}
@@ -438,15 +439,16 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 					switch (form) {
 					case MARIO_FORM_RACCOON:
 					case MARIO_FORM_FIRE:
-						form = MARIO_FORM_SUPER;
+						SetPCForm(MARIO_FORM_SUPER);
 						StartInvuln();
 						break;
 					case MARIO_FORM_SUPER:
-						form = MARIO_FORM_NORMAL;
+						SetPCForm(MARIO_FORM_NORMAL);
 						StartInvuln();
 						break;
 					case MARIO_FORM_NORMAL:
 						SetState(MARIO_STATE_DEATH);
+						break;
 					}
 				}
 			}
@@ -470,7 +472,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
 
-	if ((y > 600.0f) && (!(dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->GetCourseStatus()))) {
+	if ((y >= 500.0f) && (!(dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->GetCourseStatus()))) {
 		CGame::GetInstance()->LoseLife();
 		CGame::GetInstance()->InitTimer();
 		CGame::GetInstance()->SwitchScene(1);
@@ -731,12 +733,22 @@ void CMario::Render() {
 }
 
 void CMario::SetPCForm(int form) {
+	if (form == MARIO_FORM_SUPER)
+		y--;
+
 	this->form = form;
 	if (IsAttacking) {
 		IsAttacking = false;
 		attack_start = 0;
 	}
-	IsFlying = false;
+	if (IsFlying) {
+		IsFlying = false;
+		fly_start = 0;
+	}
+	if (IsFlapping) {
+		IsFlapping = false;
+		flap_start = 0;
+	}
 }
 
 void CMario::SetState(int state) {

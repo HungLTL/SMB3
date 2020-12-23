@@ -1,0 +1,63 @@
+﻿  Coin.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  Fireball.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  Game.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Game.cpp(298,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Game.cpp(299,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Game.cpp(300,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Game.cpp(301,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Game.cpp(364,67): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Game.cpp(364,61): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Goomba.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Goomba.cpp(138,8): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Goomba.cpp(142,8): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Grid.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Grid.cpp(29,13): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Grid.cpp(30,13): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  HUD.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\HUD.cpp(20,20): warning C4244: '=': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=int
+          ]
+  Koopa.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(139,9): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(144,9): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(187,17): warning C4305: '=': truncation from 'double' to 'float'
+  Mario.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(162,37): warning C4018: '>=': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(188,37): warning C4018: '>=': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(818,12): warning C4305: '=': truncation from 'double' to 'float'
+E:\Visual Projects\SupraMayro\SupraMayro\Mario.cpp(824,13): warning C4305: '=': truncation from 'double' to 'float'
+  PSwitch.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  PiranhaPlant.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  PlayScene.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(99,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(121,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(139,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(140,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(231,21): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(477,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(483,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(491,20): warning C4018: '<': signed/unsigned mismatch
+E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(494,20): warning C4018: '<': signed/unsigned mismatch
+  PowerUp.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  Roulette.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  Tail.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  main.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  Generating Code...
+  SupraMayro.vcxproj -> E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe

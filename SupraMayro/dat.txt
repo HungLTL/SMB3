@@ -5,5 +5,5 @@ start	0
 #scene_id	scene_type	scene_name
 0	0	menu.txt
 1	1	world1map.txt
-2	2	world1_1.txt	0	2816
-3	2	world1_1_warp.txt	0	512
+2	2	world1_1.txt	0	2816	-256	512
+3	2	world1_1_warp.txt	0	512	0	256

@@ -79,7 +79,7 @@ public:
 	void InitHUD();
 
 	void AddLife() { lives++; }
-	void LoseLife() { lives--; }
+	void LoseLife() { if (lives > 0) lives--; }
 	int GetLives() { return lives; }
 
 	void AddScore(int value) { score += value; }

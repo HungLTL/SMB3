@@ -297,7 +297,9 @@ void CGame::_ParseSection_SCENES(string line)
 	case SCENE_TYPE_GAME: {
 		float x = atof(tokens[3].c_str());
 		float X = atof(tokens[4].c_str());
-		scene = new CPlayScene(id, path, x, X);
+		float y = atof(tokens[5].c_str());
+		float Y = atof(tokens[6].c_str());
+		scene = new CPlayScene(id, path, x, X, y, Y);
 		break;
 	}
 	case SCENE_TYPE_MAP:

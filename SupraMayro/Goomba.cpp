@@ -21,8 +21,6 @@ CGoomba::CGoomba(int x, int X, bool IsPara)
 	this->bounces = 0;
 	this->walk = 0;
 
-	this->active = true;
-
 	if (IsPara)
 		this->form = GOOMBA_FORM_PARA;
 	else
@@ -118,9 +116,12 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if (state == GOOMBA_STATE_FLATTENED) {
 		if (GetTickCount() - flattened_start > GOOMBA_FLATTENED_TIME) {
 			flattened_start = 0;
-			this->active = false;
+			dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 		}
 	}
+
+	if (y > 256.0f)
+		dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
@@ -238,16 +239,14 @@ void CGoomba::Render()
 		break;
 	}
 
-	if (active) {
-		if (form == GOOMBA_FORM_PARA) {
-			if (state != GOOMBA_STATE_FLY)
-				animation_set->at(ani)->Render(x, y - 3);
-			else
-				animation_set->at(ani)->Render(x, y - 8);
-		}
+	if (form == GOOMBA_FORM_PARA) {
+		if (state != GOOMBA_STATE_FLY)
+			animation_set->at(ani)->Render(x, y - 3);
 		else
-			animation_set->at(ani)->Render(x, y);
+			animation_set->at(ani)->Render(x, y - 8);
 	}
+	else
+		animation_set->at(ani)->Render(x, y);
 
 	//RenderBoundingBox();
 }

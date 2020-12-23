@@ -43,8 +43,6 @@ public:
 	void StartDormant() { dormant = 1; dormant_start = GetTickCount(); }
 
 	int GetNX() { return this->nx; }
-	void SetActive(bool status) { this->active = status; }
-	bool GetActive() { return this->active; }
 
 	void GetBoundingBox(float& l, float& t, float& r, float& b);
 	void Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects = NULL);

@@ -7,12 +7,15 @@
 #include "Sprites.h"
 #include "Animations.h"
 
-CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X) :CScene(id, filePath) {
+CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y) :CScene(id, filePath) {
 	key_handler = new CPlaySceneKeyHandler(this);
 	player = NULL;
 	hud = NULL;
 	minX = x;
 	maxX = X;
+	minY = y;
+	maxY = Y;
+	grid = new CGrid(maxX - minX, maxY - minY, minX, minY);
 	timer_start = course_end = 0;
 	timer = 0;
 	CourseCompleted = false;
@@ -322,6 +325,7 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 void CPlayScene::Load()
 {
+	grid = new CGrid(maxX - minX, maxY - minY, minX, minY);
 	ifstream f;
 	f.open(sceneFilePath);
 	
@@ -369,76 +373,103 @@ void CPlayScene::Load()
 
 void CPlayScene::Update(DWORD dt)
 {
-	vector<LPGAMEOBJECT> coObjects;
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		coObjects.push_back(objects[i]);
-	}
-
-	for (size_t i = 0; i < objects.size(); i++)
-	{
-		objects[i]->Update(dt, &coObjects);
-	}
-	
-	if (hud == NULL)
-		return;
-	else
-		hud->Update(dt);
-
 	if (player == NULL)
 		return;
 
-	if (GetTickCount() - timer_start > TIC) {
-		if (timer == 1) {
-			CGame::GetInstance()->TimerTic();
-			timer_start = 0;
+	float fx, fy;
+	player->GetPosition(fx, fy);
+
+	if (fx <= minX)
+		player->SetPosition(minX, fy);
+
+	if (fy <= minY)
+		player->SetPosition(fx, minY);
+
+	if (player->GetState() != MARIO_STATE_DEATH) {
+		LPCELL current_main_cell = grid->LocateCellByObject(player);
+		vector<LPCELL> active_cells;
+		active_cells.push_back(current_main_cell);
+		grid->GetAdjacentCells(current_main_cell, active_cells);
+
+		vector<LPGAMEOBJECT> coObjects;
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			coObjects.push_back(objects[i]);
 		}
-		StartTimer();
-	}
 
-	if ((CGame::GetInstance()->GetTime() == 0) && (!CourseCompleted)) {
-		timer = 0;
-		timer_start = 0;
-		player->SetState(MARIO_STATE_DEATH);
-	}
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			if (dynamic_cast<CTail*>(objects[i]))
+				objects[i]->Update(dt, &coObjects);
+			else {
+				for (UINT j = 0; j < active_cells.size(); j++) {
+					if (active_cells[j]->BelongsToCell(objects[i])) {
+						objects[i]->Update(dt, &coObjects);
+							break;
+					}
+				}
+			}
+		}
 
-	float cx, cy;
-	player->GetPosition(cx, cy);
-
-	cx -= CGame::GetInstance()->GetScreenWidth() / 2;
-
-	if (cx <= minX)
-		CGame::GetInstance()->SetCamX(minX);
-	else {
-		if (cx >= maxX -CGame::GetInstance()->GetScreenWidth())
-			CGame::GetInstance()->SetCamX(maxX - CGame::GetInstance()->GetScreenWidth());
+		if (hud == NULL)
+			return;
 		else
-			CGame::GetInstance()->SetCamX(cx);
-	}
+			hud->Update(dt);
 
-	if (cy >= 16)
-		CGame::GetInstance()->SetCamY(64);
-	else {
-		cy -= CGame::GetInstance()->GetScreenHeight() / 2;
-		CGame::GetInstance()->SetCamY(cy);
-	}
+		if (GetTickCount() - timer_start > TIC) {
+			if (timer == 1) {
+				CGame::GetInstance()->TimerTic();
+				timer_start = 0;
+			}
+			StartTimer();
+		}
 
-	float Cx, Cy;
-	CGame::GetInstance()->GetCamPos(Cx, Cy);
+		if ((CGame::GetInstance()->GetTime() == 0) && (!CourseCompleted)) {
+			timer = 0;
+			timer_start = 0;
+			player->SetState(MARIO_STATE_DEATH);
+		}
 
-	hud->SetPosition(Cx, Cy + 188);
+		float cx, cy;
+		player->GetPosition(cx, cy);
 
-	if (CourseCompleted) {
-		timer = 0;
-		timer_start = 0;
-		if (GetTickCount() - course_end > COURSE_END_DELAY) {
-			CGame::GetInstance()->TimerTic();
-			if (CGame::GetInstance()->GetTime() != 0)
-				CGame::GetInstance()->AddScore(50);
+		cx -= CGame::GetInstance()->GetScreenWidth() / 2;
+
+		if (cx <= minX)
+			CGame::GetInstance()->SetCamX(minX);
+		else {
+			if (cx >= maxX - CGame::GetInstance()->GetScreenWidth() + 16)
+				CGame::GetInstance()->SetCamX(maxX - CGame::GetInstance()->GetScreenWidth() + 16);
 			else
-				CGame::GetInstance()->SwitchScene(1);
+				CGame::GetInstance()->SetCamX(cx);
+		}
+
+		if (cy >= 16)
+			CGame::GetInstance()->SetCamY(64);
+		else {
+			cy -= CGame::GetInstance()->GetScreenHeight() / 2;
+			CGame::GetInstance()->SetCamY(cy);
+		}
+
+		float Cx, Cy;
+		CGame::GetInstance()->GetCamPos(Cx, Cy);
+
+		hud->SetPosition(Cx, Cy + 188);
+
+		if (CourseCompleted) {
+			timer = 0;
+			timer_start = 0;
+			if (GetTickCount() - course_end > COURSE_END_DELAY) {
+				CGame::GetInstance()->TimerTic();
+				if (CGame::GetInstance()->GetTime() != 0)
+					CGame::GetInstance()->AddScore(50);
+				else
+					CGame::GetInstance()->SwitchScene(1);
+			}
 		}
 	}
+	else
+		player->Update(dt, NULL);
 }
 
 void CPlayScene::Render()
@@ -467,15 +498,16 @@ void CPlayScene::Unload()
 	bg_objects.clear();
 	player = NULL;
 	hud = NULL;
+	CourseCompleted = false;
 	timer = 0;
 	timer_start = course_end = 0;
 }
 
 void CPlayScene::EndCourse() {
 	CourseCompleted = true;
+	player->SetSpeed(0, 0);
 	timer = 0;
 	timer_start = 0;
-	player->SetState(MARIO_STATE_WALK_RIGHT);
 	course_end = GetTickCount();
 }
 

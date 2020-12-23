@@ -72,9 +72,6 @@
     <ClInclude Include="Fireball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GoldBlock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Goomba.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -130,6 +127,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Roulette.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GoldBlock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -191,9 +197,6 @@
     <ClCompile Include="Fireball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GoldBlock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Goomba.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -246,6 +249,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Roulette.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

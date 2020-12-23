@@ -99,17 +99,15 @@ void CTail::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 
 			if (dynamic_cast<CPiranhaPlant*>(coObjects->at(i))) {
 				CPiranhaPlant* plant = dynamic_cast<CPiranhaPlant*>(coObjects->at(i));
-				if (plant->GetState() != PIRANHA_STATE_DORMANT && plant->GetActive()) {
-					plant->SetActive(false);
+				if (plant->GetState() != PIRANHA_STATE_DORMANT) {
+					dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(plant);
 					CGame::GetInstance()->AddScore(100);
 				}
 			}
 
-			if (dynamic_cast<CGoldBlock*>(coObjects->at(i))) {
-				CGoldBlock* block = dynamic_cast<CGoldBlock*>(coObjects->at(i));
-				if (block->GetState())
-					dynamic_cast<CGoldBlock*>(coObjects->at(i))->ChangeState();
-			}
+			if (dynamic_cast<CGoldBlock*>(coObjects->at(i)))
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(coObjects->at(i));
+			
 
 			if (dynamic_cast<CPBlock*>(coObjects->at(i))) {
 				CPBlock* PowerBlock = dynamic_cast<CPBlock*>(coObjects->at(i));

@@ -10,7 +10,6 @@
 #include "PlayScene.h"
 
 CPowerUp::CPowerUp(bool IsOneUp) {
-	this->active = true;
 	if (IsOneUp)
 		OneUp = true;
 	else
@@ -165,7 +164,6 @@ void CPowerUp::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			}
 
 			if (dynamic_cast<CMario*>(e->obj)) {
-				this->active = false;
 				if (power != POWERUP_TYPE_1UP) {
 					CMario* mario = dynamic_cast<CMario*>(e->obj);
 					if (mario->GetPCForm() == MARIO_FORM_NORMAL) {
@@ -179,6 +177,7 @@ void CPowerUp::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 					CGame::GetInstance()->AddLife();
 
 				CGame::GetInstance()->AddScore(1000);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 			}
 		}
 	}
@@ -199,28 +198,26 @@ void CPowerUp::Render() {
 	default:
 		return;
 	}
-	if (active)
-		animation_set->at(ani)->Render(x, y);
+
+	animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }
 
 void CPowerUp::GetBoundingBox(float& l, float& t, float& r, float& b) {
-	if (active) {
-		if (state == POWERUP_STATE_PENDING) {
-			l = x + 5;
-			t = y;
-			r = l + POWERUP_BBOX_PENDING_WIDTH;
-			b = y + POWERUP_BBOX_WIDTH;
-		}
-		else {
-			l = x;
-			t = y;
-			r = x + POWERUP_BBOX_WIDTH;
-			if (power == POWERUP_TYPE_LEAF)
-				b = y + POWERUP_BBOX_HEIGHT_LEAF;
-			else
-				b = y + POWERUP_BBOX_HEIGHT_MUSHROOM;
-		}
+	if (state == POWERUP_STATE_PENDING) {
+		l = x + 5;
+		t = y;
+		r = l + POWERUP_BBOX_PENDING_WIDTH;
+		b = y + POWERUP_BBOX_WIDTH;
+	}
+	else {
+		l = x;
+		t = y;
+		r = x + POWERUP_BBOX_WIDTH;
+		if (power == POWERUP_TYPE_LEAF)
+			b = y + POWERUP_BBOX_HEIGHT_LEAF;
+		else
+			b = y + POWERUP_BBOX_HEIGHT_MUSHROOM;
 	}
 }
 

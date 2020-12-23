@@ -7,13 +7,16 @@ UPDATE v1.2:
 - Added power ups, coins, the P-Switch and the End-of-World Roulette
 - Added splash screen and overworld map
 - Added HUD
-- Removed clutter folders (.vs and Debug)
+
+UPDATE v1.2.1
+- Added grid class, used to determine which objects in a scene gets to be updated
+- Removed bool active attribute in most classes that was used to determined whether to render them or not; replaced with a function that directly erases an object from the objects vector
 
 Controls:
 
 AD: move left/right
-S: crouch (non-normal)
-W: warp up (if possible)
+S: crouch (game scene, non-normal forms)/move down (overworld map)
+W: warp up (game scene, if possible)/move up (overworld map)
 I: start game at splash screen
 J: attack(fire or raccoon)/sprint/carry
-K: jump/fly
+K: jump/fly/select level
