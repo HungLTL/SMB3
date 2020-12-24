@@ -12,6 +12,10 @@ UPDATE v1.2.1
 - Added grid class, used to determine which objects in a scene gets to be updated
 - Removed bool active attribute in most classes that was used to determined whether to render them or not; replaced with a function that directly erases an object from the objects vector
 
+UPDATE v1.2.2
+- Camera now has basic Y-axis tracking
+- Completing World 1-1 will retain the previous form on the overworld map and will also set Mario's icon over the World 1-1 square
+
 Controls:
 
 AD: move left/right

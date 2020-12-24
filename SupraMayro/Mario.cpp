@@ -177,7 +177,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		&& (state != MARIO_STATE_WARPING_DOWN)
 		&& (!IsFlapping))
 		vy += MARIO_GRAVITY * dt;
-		
+
 
 	if ((state == MARIO_STATE_EMERGING_UP) || (state == MARIO_STATE_EMERGING_DOWN)) {
 		int emerge_time;
@@ -217,7 +217,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		float rdy = 0;
 
 		FilterCollision(coEvents, coEventsResult, min_tx, min_ty, nx, ny, rdx, rdy);
-			
+
 		x += min_tx * dx + nx * 0.4f;
 		y += min_ty * dy + ny * 0.4f;
 
@@ -342,12 +342,12 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 				if (koopa->GetState() == KOOPA_STATE_DORMANT) {
 					if (!IsCarrying) {
-						if (e->nx != 0){
+						if (e->nx != 0) {
 							StartInvuln();
-						if (this->nx > 0)
-							koopa->SetState(KOOPA_STATE_PINBALL_RIGHT);
-						else
-							koopa->SetState(KOOPA_STATE_PINBALL_LEFT);
+							if (this->nx > 0)
+								koopa->SetState(KOOPA_STATE_PINBALL_RIGHT);
+							else
+								koopa->SetState(KOOPA_STATE_PINBALL_LEFT);
 						}
 					}
 					else {
@@ -413,27 +413,8 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				}
 			}
 
-			if (dynamic_cast<CFireball*>(e->obj)) {
-				if (invuln == 0)
-				{
-					switch (form) {
-					case MARIO_FORM_RACCOON:
-					case MARIO_FORM_FIRE:
-						SetPCForm(MARIO_FORM_SUPER);
-						StartInvuln();
-						break;
-					case MARIO_FORM_SUPER:
-						SetPCForm(MARIO_FORM_NORMAL);
-						StartInvuln();
-						break;
-					case MARIO_FORM_NORMAL:
-						SetState(MARIO_STATE_DEATH);
-						break;
-					}
-				}
-			}
 
-			if (dynamic_cast<CPiranhaPlant*>(e->obj)){
+			if ((dynamic_cast<CPiranhaPlant*>(e->obj)) || (dynamic_cast<CFireball*>(e->obj))) {
 				if (invuln == 0)
 				{
 					switch (form) {
@@ -473,6 +454,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
 
 	if ((y >= 500.0f) && (!(dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->GetCourseStatus()))) {
+		CGame::GetInstance()->SetPrevForm(MARIO_FORM_NORMAL);
 		CGame::GetInstance()->LoseLife();
 		CGame::GetInstance()->InitTimer();
 		CGame::GetInstance()->SwitchScene(1);

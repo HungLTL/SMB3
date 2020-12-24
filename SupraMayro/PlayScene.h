@@ -48,7 +48,7 @@ class CPlayScene :public CScene {
 	vector<LPGAMEOBJECT> objects;
 	vector<LPBGOBJECT> bg_objects;
 
-	float minX, maxX, minY, maxY;
+	float minX, maxX, minY, maxY, xOnMap, yOnMap;
 	bool CourseCompleted;
 
 	int timer;
@@ -61,7 +61,7 @@ class CPlayScene :public CScene {
 	void _ParseSection_ANIMATION_SETS(string line);
 	void _ParseSection_OBJECTS(string line);
 public:
-	CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y);
+	CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, float xOnMap, float yOnMap);
 
 	virtual void Load();
 	virtual void Update(DWORD dt);

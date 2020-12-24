@@ -7,7 +7,7 @@
 #include "Sprites.h"
 #include "Animations.h"
 
-CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y) :CScene(id, filePath) {
+CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, float xOnMap, float yOnMap) :CScene(id, filePath) {
 	key_handler = new CPlaySceneKeyHandler(this);
 	player = NULL;
 	hud = NULL;
@@ -15,6 +15,8 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, floa
 	maxX = X;
 	minY = y;
 	maxY = Y;
+	this->xOnMap = xOnMap;
+	this->yOnMap = yOnMap;
 	grid = new CGrid(maxX - minX, maxY - minY, minX, minY);
 	timer_start = course_end = 0;
 	timer = 0;
@@ -434,6 +436,7 @@ void CPlayScene::Update(DWORD dt)
 		player->GetPosition(cx, cy);
 
 		cx -= CGame::GetInstance()->GetScreenWidth() / 2;
+		cy -= CGame::GetInstance()->GetScreenHeight() / 4;
 
 		if (cx <= minX)
 			CGame::GetInstance()->SetCamX(minX);
@@ -444,11 +447,13 @@ void CPlayScene::Update(DWORD dt)
 				CGame::GetInstance()->SetCamX(cx);
 		}
 
-		if (cy >= 16)
-			CGame::GetInstance()->SetCamY(64);
+		if (cy <= minY)
+			CGame::GetInstance()->SetCamY(minY);
 		else {
-			cy -= CGame::GetInstance()->GetScreenHeight() / 2;
-			CGame::GetInstance()->SetCamY(cy);
+			if (cy >= maxY - CELL_WIDTH - CGame::GetInstance()->GetScreenHeight() + 68)
+				CGame::GetInstance()->SetCamY(maxY - CELL_WIDTH - CGame::GetInstance()->GetScreenHeight() + 68);
+			else
+				CGame::GetInstance()->SetCamY(cy);
 		}
 
 		float Cx, Cy;
@@ -509,6 +514,8 @@ void CPlayScene::EndCourse() {
 	timer = 0;
 	timer_start = 0;
 	course_end = GetTickCount();
+	CGame::GetInstance()->SetPrevForm(player->GetPCForm());
+	CGame::GetInstance()->SetNewPos(xOnMap, yOnMap);
 }
 
 void CPlaySceneKeyHandler::OnKeyDown(int KeyCode)

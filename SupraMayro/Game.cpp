@@ -299,7 +299,9 @@ void CGame::_ParseSection_SCENES(string line)
 		float X = atof(tokens[4].c_str());
 		float y = atof(tokens[5].c_str());
 		float Y = atof(tokens[6].c_str());
-		scene = new CPlayScene(id, path, x, X, y, Y);
+		float xOnMap = atof(tokens[7].c_str());
+		float yOnMap = atof(tokens[8].c_str());
+		scene = new CPlayScene(id, path, x, X, y, Y, xOnMap, yOnMap);
 		break;
 	}
 	case SCENE_TYPE_MAP:
@@ -366,6 +368,18 @@ void CGame::SwitchScene(int scene_id)
 			newY = NULL;
 		}
 	}
-	else
+	else {
 		SetCamPos(0, 0);
+		if (prevForm != NULL) {
+			(dynamic_cast<CMapScene*>(s))->GetPlayer()->SetPCForm(prevForm);
+			prevForm = NULL;
+		}
+		if (dynamic_cast<CMapScene*>(s)) {
+			if ((newX != NULL) && (newY != NULL)) {
+				(dynamic_cast<CMapScene*>(s))->GetPlayer()->SetPosition(newX, newY);
+				newX = NULL;
+				newY = NULL;
+			}
+		}
+	}
 }

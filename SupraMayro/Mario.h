@@ -161,6 +161,7 @@ public:
 	bool GetGravStatus() { return this->IsGrounded; }
 	bool GetAttackStatus() { return this->IsAttacking; }
 	bool GetCarryStatus() { return this->IsCarrying; }
+	bool GetFlyStatus() { return this->IsFlying; }
 	void SetCarryStatus(bool result) { this->IsCarrying = result; }
 	void SetWButtonStatus(bool result) { this->IsHoldingDownW = result; }
 	void SetJumpCharge(bool value) { this->IsChargingJump = value; }
