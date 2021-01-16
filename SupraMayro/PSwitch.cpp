@@ -19,21 +19,28 @@ void CPSwitch::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 
 	if (state == PSWITCH_STATE_ACTIVATED) {
 		if (GetTickCount() - transmute_start >= TRANSMUTE_TIME) {
-			for (UINT i = 1; i < (current_scene->getObjects()).size(); i++) {
-				if (dynamic_cast<CCoin*>((current_scene->getObjects())[i])) {
-					CCoin* coin = dynamic_cast<CCoin*>((current_scene->getObjects())[i]);
-					if (coin->GetOrigins()) {
-						float fx, fy;
-						coin->GetPosition(fx, fy);
+			vector<LPCELL> cells;
+			current_scene->getCells(this, cells);
 
-						CGoldBlock* block = new CGoldBlock();
-						block->SetPosition(fx, fy);
-						block->SetAnimationSet(CAnimationSets::GetInstance()->Get(2));
+			for (UINT i = 0; i < cells.size(); i++) {
+				for (int j = 0; j < cells[i]->GetObjects().size(); j++) {
+					if (dynamic_cast<CCoin*>((cells[i]->GetObjects()[j]))) {
+						CCoin* coin = dynamic_cast<CCoin*>(cells[i]->GetObjects()[j]);
+						if (coin->GetOrigins()) {
+							float fx, fy;
+							coin->GetPosition(fx, fy);
 
-						dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(i, block);
+							CGoldBlock* block = new CGoldBlock();
+							block->SetPosition(fx, fy);
+							block->GetInitBoundaries();
+							block->SetAnimationSet(CAnimationSets::GetInstance()->Get(2));
+
+							dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(j, block);
+						}
 					}
 				}
 			}
+
 			transmute = 0;
 			transmute_start = 0;
 		}
@@ -82,18 +89,23 @@ void CPSwitch::SetState(int state) {
 
 		CPlayScene* current_scene = dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene());
 
-		for (UINT i = 1; i < (current_scene->getObjects()).size(); i++) {
-			if (dynamic_cast<CGoldBlock*>((current_scene->getObjects())[i])) {
-				CGoldBlock* block = dynamic_cast<CGoldBlock*>((current_scene->getObjects())[i]);
-				float fx, fy;
-				block->GetPosition(fx, fy);
+		vector<LPCELL> cells;
+		current_scene->getCells(this, cells);
 
-				CCoin* coin = new CCoin(0);
-				coin->SetOrigins(true);
-				coin->SetPosition(fx, fy);
-				coin->SetAnimationSet(CAnimationSets::GetInstance()->Get(15));
+		for (UINT i = 0; i < cells.size(); i++) {
+			for (int j = 0; j < cells[i]->GetObjects().size(); j++) {
+				if (dynamic_cast<CGoldBlock*>((cells[i]->GetObjects()[j]))) {
+					CGoldBlock* block = dynamic_cast<CGoldBlock*>(cells[i]->GetObjects()[j]);
+					float fx, fy;
+					block->GetPosition(fx, fy);
 
-				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(i, coin);
+					CCoin* coin = new CCoin(0);
+					coin->SetOrigins(true);
+					coin->SetPosition(fx, fy);
+					coin->SetAnimationSet(CAnimationSets::GetInstance()->Get(15));
+
+					dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->Replace(j, coin);
+				}
 			}
 		}
 

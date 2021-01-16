@@ -5,20 +5,15 @@
 #include "Goomba.h"
 #include "Koopa.h"
 #include "PiranhaPlant.h"
+#include "BoomerangBro.h"
 
 #include "GoldBlock.h"
+#include "CoinBlock.h"
 #include "PowerBlock.h"
 #include "PSwitch.h"
 
 #include "Game.h"
 #include "PlayScene.h"
-
-CTail::CTail() {
-	this->active = false;
-	this->attack = 0;
-	this->prevState = NULL;
-	this->SetState(TAIL_STATE_DORMANT);
-}
 
 bool CTail::CheckOverlap(LPGAMEOBJECT obj) {
 	float l, t, r, b;
@@ -33,51 +28,33 @@ bool CTail::CheckOverlap(LPGAMEOBJECT obj) {
 }
 
 void CTail::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
+	CGameObject::Update(dt);
+
 	CMario* mario = dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->getPlayer();
 	float fx, fy;
 	mario->GetPosition(fx, fy);
 
-	CGameObject::Update(dt);
+	if (mario->GetNX() < 0)
+		x = fx - TAIL_BBOX_WIDTH;
+	else
+		x = fx + MARIO_SUPER_BBOX_WIDTH;
 
-	if (state != TAIL_STATE_DORMANT) {
-		if (state == TAIL_STATE_ATTACK_LEFT)
-			x = fx - TAIL_BBOX_WIDTH;
-		else {
-			if (state == TAIL_STATE_ATTACK_RIGHT)
-				x = fx + MARIO_SUPER_BBOX_WIDTH;
-		}
-		y = fy + 18;
-	}
+	y = fy + 18;
 
-	if ((mario->GetAttackStatus()) && (attack == 0) && (mario->GetPCForm() == MARIO_FORM_RACCOON)) {
-		if (mario->GetNX() > 0) {
-			SetState(TAIL_STATE_ATTACK_LEFT);
-		}
-		else {
-			SetState(TAIL_STATE_ATTACK_RIGHT);
-		}
-		prevState = state;
+	if ((mario->GetAttackStatus()) && (attack == 0) && (mario->GetPCForm() == MARIO_FORM_RACCOON))
 		StartAttack();
-	}
 
-	if ((GetTickCount() - attack_start >= TAIL_WINDUP_TIME) || (GetTickCount() - attack_start >= TAIL_ATTACK_TIME))
-		SetState(TAIL_STATE_DORMANT);
+	if (GetTickCount() - attack_start > TAIL_DAMAGE_TIME)
+		active = true;
 
-	if (GetTickCount() - attack_start >= TAIL_FIRSTNEUTRAL_TIME) {
-		if (prevState == TAIL_STATE_ATTACK_LEFT)
-			SetState(TAIL_STATE_ATTACK_RIGHT);
-		else
-			SetState(TAIL_STATE_ATTACK_LEFT);
-	}
+	if (GetTickCount() - attack_start > TAIL_DOWN_TIME)
+		active = false;
 
-	if (GetTickCount() - attack_start >= TAIL_SECONDNEUTRAL_TIME)
-		SetState(prevState);
-
-	if ((GetTickCount() - attack_start >= TAIL_SECONDATTACK_TIME) || (mario->GetPCForm() != MARIO_FORM_RACCOON)) {
-		SetState(TAIL_STATE_DORMANT);
+	if ((GetTickCount() - attack_start >= TAIL_ATTACK_SEQ) || (mario->GetPCForm() != MARIO_FORM_RACCOON)) {
 		attack = 0;
 		attack_start = 0;
 	}
+	
 	
 	for (UINT i = 0; i < coObjects->size(); i++) {
 		if (CheckOverlap(coObjects->at(i))) {
@@ -105,15 +82,28 @@ void CTail::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 				}
 			}
 
-			if (dynamic_cast<CGoldBlock*>(coObjects->at(i)))
-				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(coObjects->at(i));
-			
+			if (dynamic_cast<CBoomerangBro*>(coObjects->at(i)))
+				dynamic_cast<CBoomerangBro*>(coObjects->at(i))->SetState(BBRO_STATE_DEATH);
 
-			if (dynamic_cast<CPBlock*>(coObjects->at(i))) {
-				CPBlock* PowerBlock = dynamic_cast<CPBlock*>(coObjects->at(i));
-				if (!PowerBlock->GetState()) {
-					PowerBlock->SetState(true);
-					PowerBlock->ShiftY();
+			if (dynamic_cast<CGoldBlock*>(coObjects->at(i))) {
+				if (dynamic_cast<CPBlock*>(coObjects->at(i))) {
+					CPBlock* PowerBlock = dynamic_cast<CPBlock*>(coObjects->at(i));
+					if (!PowerBlock->GetState()) {
+						float pbx, pby; PowerBlock->GetPosition(pbx, pby = 0);
+
+						if (x < pbx)
+							PowerBlock->ChangeActivationSide();
+						PowerBlock->SetState(true);
+						PowerBlock->SetStatus();
+					}
+				}
+				else {
+					if (dynamic_cast<CCoinBlock*>(coObjects->at(i)))
+						dynamic_cast<CCoinBlock*>(coObjects->at(i))->SetStatus();
+					else {
+						dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(coObjects->at(i));
+						CGame::GetInstance()->AddScore(10);
+					}
 				}
 			}
 
@@ -133,12 +123,4 @@ void CTail::GetBoundingBox(float& left, float& top, float& right, float& bottom)
 		right = x + TAIL_BBOX_WIDTH;
 		bottom = y + TAIL_BBOX_HEIGHT;
 	}
-}
-
-void CTail::SetState(int state) {
-	CGameObject::SetState(state);
-	if (state != TAIL_STATE_DORMANT)
-		this->active = true;
-	else
-		this->active = false;
 }

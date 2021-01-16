@@ -1,14 +1,8 @@
-﻿  PlayScene.cpp
-E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(54,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(101,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(123,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(141,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(142,10): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(233,21): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(482,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(488,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(496,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(499,20): warning C4018: '<': signed/unsigned mismatch
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(518,42): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\PlayScene.cpp(518,34): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+﻿  Koopa.cpp
+E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(55,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(180,16): warning C4305: '=': truncation from 'double' to 'float'
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(238,9): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(243,9): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(251,10): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(257,10): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
   SupraMayro.vcxproj -> E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe

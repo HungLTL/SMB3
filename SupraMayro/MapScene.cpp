@@ -301,24 +301,22 @@ void CMapSceneKeyHandler::OnKeyDown(int keyCode) {
 				break;
 			case DIK_1:
 				player->SetPCForm(FORM_NORMAL);
-				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
 				break;
 			case DIK_2:
 				player->SetPCForm(FORM_SUPER);
-				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
 				break;
 			case DIK_3:
 				player->SetPCForm(FORM_RACCOON);
-				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
 				break;
 			case DIK_4:
 				player->SetPCForm(FORM_FIRE);
-				CGame::GetInstance()->SetPrevForm(player->GetPCForm());
 				break;
 			case DIK_K:
 				int scene_id = ((CMapScene*)scene)->GetDestinationScene();
-				if (scene_id != NULL)
+				if (scene_id != NULL) {
+					CGame::GetInstance()->SetPrevForm(player->GetPCForm());
 					CGame::GetInstance()->SwitchScene(scene_id);
+				}
 				break;
 			}
 		}

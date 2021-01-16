@@ -8,6 +8,7 @@
 using namespace std;
 
 #define ID_TEX_BBOX -100
+#define WIDTH 16
 
 class CGameObject;
 typedef CGameObject* LPGAMEOBJECT;

@@ -9,8 +9,13 @@
 
 CGameObject::CGameObject() {
 	x = y = 0;
+	x0 = y0 = 0;
+	dx = dy = 0;
 	vx = vy = 0;
+	state = 0;
 	nx = 1;
+	dt = 0;
+	animation_set = NULL;
 }
 
 void CGameObject::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {

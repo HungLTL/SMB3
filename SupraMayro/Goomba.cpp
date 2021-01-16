@@ -102,8 +102,14 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-	if ((mario->GetX() - this->x <= WIDTH * 16) && (this->x - mario->GetX() <= WIDTH * 16)) {
-		if ((form == GOOMBA_FORM_PARA) && (state != GOOMBA_STATE_FLY)) {
+	
+	if ((form == GOOMBA_FORM_PARA) && (state != GOOMBA_STATE_FLY)) {
+		float cx, cy;
+		CGame::GetInstance()->GetCamPos(cx, cy);
+		float scrnh = CGame::GetInstance()->GetScreenHeight();
+		float scrnw = CGame::GetInstance()->GetScreenWidth();
+
+		if ((x > cx) && (x < cx + scrnw) && (y > cy) && (y < cy + scrnh)) {
 			if (mario->GetX() > this->x)
 				this->SetState(GOOMBA_STATE_WALK_RIGHT);
 			else {
@@ -112,6 +118,7 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			}
 		}
 	}
+	
 
 	if (state == GOOMBA_STATE_FLATTENED) {
 		if (GetTickCount() - flattened_start > GOOMBA_FLATTENED_TIME) {
@@ -119,9 +126,6 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 		}
 	}
-
-	if (y > 256.0f)
-		dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;

@@ -5,6 +5,7 @@
 #include "Goomba.h"
 #include "Koopa.h"
 #include "PiranhaPlant.h"
+#include "BoomerangBro.h"
 #include "Game.h"
 #include "PlayScene.h"
 
@@ -93,8 +94,10 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 	scrh = CGame::GetInstance()->GetScreenHeight();
 	scrw = CGame::GetInstance()->GetScreenWidth();
 
-	if((x < cx - FIREBALL_BBOX_WIDTH) || (x > cx + scrw) || (y < cy - FIREBALL_BBOX_WIDTH) || (y > cy + scrw))
+	if (x <= cx || x > cx + scrw || y <= cy || y > cy + scrh) {
 		dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
+		dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveFireball();
+	}
 	
 	vector<LPCOLLISIONEVENT> coEvents;
 	vector<LPCOLLISIONEVENT> coEventsResult;
@@ -134,13 +137,16 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			if (dynamic_cast<CGameObject*>(e->obj)) {
 				if (e->ny < 0)
 					vy = -FIREBALL_BOUNCE_HEIGHT;
-				if (e->nx != 0)
+				if (e->nx != 0) {
 					dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
+					dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveFireball();
+				}
 			}
 
 			if (dynamic_cast<CPiranhaPlant*>(e->obj)) {
 				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(e->obj);
 				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveFireball();
 				CGame::GetInstance()->AddScore(100);
 			}
 
@@ -149,6 +155,7 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 				goomba->SetEnemyForm(GOOMBA_FORM_NORMAL);
 				goomba->SetState(GOOMBA_STATE_DEATH);
 				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveFireball();
 			}
 
 			if (dynamic_cast<CKoopa*>(e->obj)) {
@@ -156,6 +163,13 @@ void CFireball::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 				koopa->SetPara(false);
 				koopa->SetState(KOOPA_STATE_DEATH);
 				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveFireball();
+			}
+
+			if (dynamic_cast<CBoomerangBro*>(e->obj)) {
+				dynamic_cast<CBoomerangBro*>(e->obj)->SetState(BBRO_STATE_DEATH);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
+				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveFireball();
 			}
 		}
 	}

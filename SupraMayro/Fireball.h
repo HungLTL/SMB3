@@ -15,7 +15,7 @@
 #define FIREBALL_SPEED 0.25f
 #define FIREBALL_GRAVITY 0.002f
 #define FIREBALL_BOUNCE_HEIGHT 0.25f
-#define FIREBALL_PIRANHA_SPEED 0.6f
+#define FIREBALL_PIRANHA_SPEED 0.75f
 
 class CFireball :public CBlock {
 	bool Direction;

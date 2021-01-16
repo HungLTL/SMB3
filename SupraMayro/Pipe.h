@@ -1,8 +1,6 @@
 #pragma once
 #include "GameObject.h"
 
-#define WIDTH 16
-
 #define PIPE_OVERWORLD 0
 #define PIPE_UNDERWORLD 1
 

@@ -25,6 +25,17 @@ bool CCell::BelongsToCell(LPGAMEOBJECT obj) {
 		return false;
 }
 
+void CCell::ClearCell() {
+	for (int i = 0; i < objects.size(); i++)
+		delete objects[i];
+
+	for (int j = 0; j < bg_objects.size(); j++)
+		delete bg_objects[j];
+
+	objects.clear();
+	bg_objects.clear();
+}
+
 CGrid::CGrid(float l, float h, float StartX, float StartY) {
 	length = l / CELL_WIDTH;
 	height = h / CELL_WIDTH;
@@ -36,24 +47,66 @@ CGrid::CGrid(float l, float h, float StartX, float StartY) {
 			grid[i][j] = new CCell(StartX + CELL_WIDTH * j, StartY + CELL_WIDTH * i, i, j);
 		}
 	}
+}
 
-	CTextures::GetInstance()->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 255, 255));
+void CGrid::ReplaceObject(int row, int column, LPGAMEOBJECT obj, LPGAMEOBJECT newObj) {
+	for (int i = 0; i < grid[row][column]->GetObjects().size(); i++) {
+		if (grid[row][column]->GetObjects()[i] == obj) {
+			grid[row][column]->GetObjects()[i] = newObj;
+			return;
+		}
+	}
+}
+
+bool CGrid::CheckObjectIntegrity(LPGAMEOBJECT obj, LPCELL cell) {
+	if (cell->BelongsToCell(obj))
+		return true;
+	else {
+		vector<LPCELL> PotentialNewCells;
+		GetAdjacentCells(cell, PotentialNewCells);
+
+		for (int i = 0; i < PotentialNewCells.size(); i++) {
+			if (PotentialNewCells[i]->BelongsToCell(obj)) {
+				cell->DeleteObject(obj);
+				PotentialNewCells[i]->AddToCell(obj);
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 void CGrid::GetAdjacentCells(LPCELL cell, vector<LPCELL> &result) {
 	CCoordinates coords = cell->GetCoords();
 
+	if (coords.row > 0) {
+		if (coords.column > 0)
+			result.push_back(grid[coords.row - 1][coords.column - 1]);
+
+		result.push_back(grid[coords.row - 1][coords.column]);
+
+		if (coords.column < length - 1)
+			result.push_back(grid[coords.row - 1][coords.column + 1]);
+	}
+
 	if (coords.column > 0)
 		result.push_back(grid[coords.row][coords.column - 1]);
+
+	result.push_back(grid[coords.row][coords.column]);
 
 	if (coords.column < length - 1)
 		result.push_back(grid[coords.row][coords.column + 1]);
 
-	if (coords.row > 0)
-		result.push_back(grid[coords.row - 1][coords.column]);
+	if (coords.row < height - 1) {
+		if (coords.column > 0)
+			result.push_back(grid[coords.row + 1][coords.column - 1]);
 
-	if (coords.row < height - 1)
 		result.push_back(grid[coords.row + 1][coords.column]);
+
+		if (coords.column < length - 1)
+			result.push_back(grid[coords.row + 1][coords.column + 1]);
+	}
 }
 
 LPCELL CGrid::LocateCellByObject(LPGAMEOBJECT obj) {
@@ -64,4 +117,11 @@ LPCELL CGrid::LocateCellByObject(LPGAMEOBJECT obj) {
 		}
 	}
 	return NULL;
+}
+
+void CGrid::ClearGrid() {
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < length; j++)
+			grid[i][j]->ClearCell();
+	}
 }

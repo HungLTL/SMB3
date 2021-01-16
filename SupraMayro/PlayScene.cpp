@@ -7,9 +7,10 @@
 #include "Sprites.h"
 #include "Animations.h"
 
-CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, float xOnMap, float yOnMap) :CScene(id, filePath) {
+CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, float xOnMap, float yOnMap, int scroll) :CScene(id, filePath) {
 	key_handler = new CPlaySceneKeyHandler(this);
 	player = NULL;
+	tail = NULL;
 	hud = NULL;
 	minX = x;
 	maxX = X;
@@ -17,6 +18,14 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, floa
 	maxY = Y;
 	this->xOnMap = xOnMap;
 	this->yOnMap = yOnMap;
+
+	NumOfFireballs = 0;
+
+	if (scroll == 0)
+		AutoScroll = false;
+	else
+		AutoScroll = true;
+
 	grid = new CGrid(maxX - minX, maxY - minY, minX, minY);
 	timer_start = course_end = 0;
 	timer = 0;
@@ -29,6 +38,7 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, floa
 #define SCENE_SECTION_ANIMATIONS 4
 #define SCENE_SECTION_ANIMATION_SETS 5
 #define SCENE_SECTION_OBJECTS 6
+#define SCENE_SECTION_CELLS 7
 
 #define OBJECT_TYPE_MARIO 0
 #define OBJECT_TYPE_BLOCK 1
@@ -40,7 +50,6 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, floa
 #define OBJECT_TYPE_BGTILE 7
 #define OBJECT_TYPE_CLOUD 8
 #define OBJECT_TYPE_SHRUB 9
-#define OBJECT_TYPE_FIREBALL 10
 #define OBJECT_TYPE_GOOMBA 11
 #define OBJECT_TYPE_KOOPA 12
 #define OBJECT_TYPE_BGHEIGHT 13
@@ -51,6 +60,9 @@ CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, floa
 #define OBJECT_TYPE_PSWITCH 18
 #define OBJECT_TYPE_PORTAL 19
 #define OBJECT_TYPE_ROULETTE 20
+#define OBJECT_TYPE_COINBLOCK 21
+#define OBJECT_TYPE_LIFT 22
+#define OBJECT_TYPE_BBRO 23
 #define OBJECT_TYPE_HUD 100
 
 #define MAX_SCENE_LINE 1024
@@ -147,17 +159,46 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 
 	CGameObject* obj = NULL;
 	CBackgroundObject* bg_obj = NULL;
-	CGameObject* bonusObj = NULL;
-
-	bool IsGameObject = true;
 
 	switch (object_type)
 	{
 	case OBJECT_TYPE_MARIO:
 		obj = new CMario(x, y);
 		player = (CMario*)obj;
-		bonusObj = new CTail();
+		player->SetPosition(x, y);
+		player->GetInitBoundaries();
+		player->SetAnimationSet(animation_sets->Get(ani_set_id));
+
+		tail = new CTail();
 		break;
+	case OBJECT_TYPE_HUD: {
+		bg_obj = new CHUD();
+		hud = (CHUD*)bg_obj;
+		hud->SetAnimationSet(animation_sets->Get(ani_set_id));
+		break;
+	}
+	}
+}
+
+void CPlayScene::_ParseSection_CELLS(string line, int row, int column) {
+	vector<string> tokens = split(line);
+
+	if (tokens.size() < 3) return;
+
+	int object_type = atoi(tokens[0].c_str());
+	float x = atof(tokens[1].c_str());
+	float y = atof(tokens[2].c_str());
+
+	int ani_set_id = atoi(tokens[3].c_str());
+
+	CAnimationSets* animation_sets = CAnimationSets::GetInstance();
+
+	CGameObject* obj = NULL;
+	CBackgroundObject* bg_obj = NULL;
+
+	bool IsGameObject = true;
+
+	switch (object_type) {
 	case OBJECT_TYPE_BLOCK:
 		obj = new CBlock();
 		break;
@@ -166,29 +207,6 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		break;
 	case OBJECT_TYPE_PBLOCK: {
 		int t = atoi(tokens[4].c_str());
-		switch (t) {
-		case COIN: {
-			bonusObj = new CCoin(1);
-			CAnimationSets* animation_sets = CAnimationSets::GetInstance();
-			bonusObj->SetAnimationSet(animation_sets->Get(OBJECT_TYPE_COIN));
-			bonusObj->SetPosition(x, y - 18);
-			break;
-		}
-		case POWERUP: {
-			bonusObj = new CPowerUp(false);
-			CAnimationSets* animation_sets = CAnimationSets::GetInstance();
-			bonusObj->SetAnimationSet(animation_sets->Get(OBJECT_TYPE_POWERUP));
-			bonusObj->SetPosition(x, y + 15);
-			break;
-		}
-		case MUSHROOM_1UP: {
-			bonusObj = new CPowerUp(true);
-			CAnimationSets* animation_sets = CAnimationSets::GetInstance();
-			bonusObj->SetAnimationSet(animation_sets->Get(OBJECT_TYPE_POWERUP));
-			bonusObj->SetPosition(x, y + 15);
-			break;
-		}
-		}
 		obj = new CPBlock(t);
 		break;
 	}
@@ -247,15 +265,28 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		break;
 	}
 	case OBJECT_TYPE_KOOPA: {
-		int x = atoi(tokens[4].c_str());
-		int X = atoi(tokens[5].c_str());
-		int p = atoi(tokens[6].c_str());
-		if (p == 0)
-			obj = new CKoopa(x, X);
-		else {
+		int t = atoi(tokens[4].c_str());
+		switch (t) {
+		case 0: {
+			int min_x = atoi(tokens[5].c_str());
+			int max_x = atoi(tokens[6].c_str());
+			obj = new CKoopa(min_x, max_x);
+			break;
+		}
+		case 1: {
+			int min_x = atoi(tokens[5].c_str());
+			int max_x = atoi(tokens[6].c_str());
 			int px = atoi(tokens[7].c_str());
-			int py = atoi(tokens[8].c_str());
-			obj = new CKoopa(x, X, px, py);
+			int pX = atoi(tokens[8].c_str());
+			obj = new CKoopa(min_x, max_x, px, pX);
+			break;
+		}
+		case 2: {
+			int min_y = atoi(tokens[5].c_str());
+			int max_y = atoi(tokens[6].c_str());
+			obj = new CKoopa(x, min_y, max_y);
+			break;
+		}
 		}
 		break;
 	}
@@ -291,17 +322,27 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 		int sid = atoi(tokens[6].c_str());
 		int nx = atoi(tokens[7].c_str());
 		int ny = atoi(tokens[8].c_str());
-		obj = new CPortal(w, h, sid, nx, ny);
-		break;
-	}
-	case OBJECT_TYPE_HUD: {
-		IsGameObject = false;
-		bg_obj = new CHUD();
-		hud = (CHUD*)bg_obj;
+		int dir = atoi(tokens[9].c_str());
+		obj = new CPortal(w, h, sid, nx, ny, dir);
 		break;
 	}
 	case OBJECT_TYPE_ROULETTE: {
 		obj = new CRoulette();
+		break;
+	}
+	case OBJECT_TYPE_COINBLOCK: {
+		int u = atoi(tokens[4].c_str());
+		obj = new CCoinBlock(u);
+		break;
+	}
+	case OBJECT_TYPE_LIFT: {
+		obj = new CLift();
+		break;
+	}
+	case OBJECT_TYPE_BBRO: {
+		int min_x = atoi(tokens[4].c_str());
+		int max_x = atoi(tokens[5].c_str());
+		obj = new CBoomerangBro(min_x, max_x);
 		break;
 	}
 	}
@@ -309,29 +350,27 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	LPANIMATION_SET ani_set = animation_sets->Get(ani_set_id);
 
 	if (IsGameObject) {
-		if (bonusObj != NULL) {
-			objects.push_back(bonusObj);
-		}
 		obj->SetPosition(x, y);
 		obj->GetInitBoundaries();
 		obj->SetAnimationSet(ani_set);
-		objects.push_back(obj);
+		grid->AddToGrid(row, column, obj);
 	}
 	else {
-		if (!dynamic_cast<CHUD*>(bg_obj))
-			bg_obj->SetPosition(x, y);
+		bg_obj->SetPosition(x, y);
 		bg_obj->SetAnimationSet(ani_set);
-		bg_objects.push_back(bg_obj);
+		grid->AddToGrid(row, column, bg_obj);
 	}
 }
 
 void CPlayScene::Load()
 {
-	grid = new CGrid(maxX - minX, maxY - minY, minX, minY);
 	ifstream f;
 	f.open(sceneFilePath);
 	
 	int section = SCENE_SECTION_UNKNOWN;
+
+	int cellRow = 0;
+	int cellColumn = 0;
 
 	char str[MAX_SCENE_LINE];
 	while (f.getline(str, MAX_SCENE_LINE))
@@ -353,6 +392,15 @@ void CPlayScene::Load()
 		if (line == "[OBJECTS]") {
 			section = SCENE_SECTION_OBJECTS; continue;
 		}
+		if (line == "[CELLS]") {
+			section = SCENE_SECTION_CELLS; continue;
+		}
+		if (line[0] == 'C') {
+			vector<string> tokens = split(line);
+			cellRow = atoi(tokens[1].c_str());
+			cellColumn = atoi(tokens[2].c_str());
+			continue;
+		}
 		if (line[0] == '[') { section = SCENE_SECTION_UNKNOWN; continue; }
 
 		switch (section)
@@ -362,6 +410,7 @@ void CPlayScene::Load()
 		case SCENE_SECTION_ANIMATIONS: _ParseSection_ANIMATIONS(line); break;
 		case SCENE_SECTION_ANIMATION_SETS: _ParseSection_ANIMATION_SETS(line); break;
 		case SCENE_SECTION_OBJECTS: _ParseSection_OBJECTS(line); break;
+		case SCENE_SECTION_CELLS: _ParseSection_CELLS(line, cellRow, cellColumn); break;
 		}
 	}
 
@@ -373,6 +422,20 @@ void CPlayScene::Load()
 	CTextures::GetInstance()->Add(ID_TEX_BBOX, L"textures\\bbox.png", D3DCOLOR_XRGB(255, 255, 255));
 }
 
+void CPlayScene::PushObject(LPGAMEOBJECT obj) {
+	if (grid->LocateCellByObject(obj) != NULL)
+		(grid->LocateCellByObject(obj))->AddToCell(obj);
+}
+
+void CPlayScene::Replace(int i, LPGAMEOBJECT newObj) {
+	(grid->LocateCellByObject(newObj))->Replace(i, newObj);
+}
+
+void CPlayScene::RemoveObject(LPGAMEOBJECT obj) {
+	if (grid->LocateCellByObject(obj) != NULL)
+		(grid->LocateCellByObject(obj))->DeleteObject(obj);
+}
+
 void CPlayScene::Update(DWORD dt)
 {
 	if (player == NULL)
@@ -381,129 +444,254 @@ void CPlayScene::Update(DWORD dt)
 	float fx, fy;
 	player->GetPosition(fx, fy);
 
-	if (fx <= minX)
-		player->SetPosition(minX, fy);
+	if (fx <= minX + 1)
+		player->SetPosition(minX + 1, fy);
 
-	if (fy <= minY)
-		player->SetPosition(fx, minY);
+	if (fy <= minY + 1)
+		player->SetPosition(fx, minY + 1);
 
-	if (player->GetState() != MARIO_STATE_DEATH) {
-		LPCELL current_main_cell = grid->LocateCellByObject(player);
-		vector<LPCELL> active_cells;
-		active_cells.push_back(current_main_cell);
-		grid->GetAdjacentCells(current_main_cell, active_cells);
+	if (AutoScroll) {
+		float cx, cy; CGame::GetInstance()->GetCamPos(cx, cy = 0);
+		int scrnw = CGame::GetInstance()->GetScreenWidth();
+		
+		int MW = 0;
+		if (player->GetPCForm() == MARIO_FORM_NORMAL)
+			MW = MARIO_NORMAL_BBOX_WIDTH;
+		else
+			MW = MARIO_SUPER_BBOX_WIDTH;
 
-		vector<LPGAMEOBJECT> coObjects;
-		for (size_t i = 0; i < objects.size(); i++)
-		{
-			coObjects.push_back(objects[i]);
-		}
+		if (fx <= cx)
+			player->SetPosition(cx, fy);
+		if (fx >= cx + scrnw - MW * 2)
+			player->SetPosition(cx + scrnw - MW * 2, fy);
+	}
 
-		for (size_t i = 0; i < objects.size(); i++)
-		{
-			if (dynamic_cast<CTail*>(objects[i]))
-				objects[i]->Update(dt, &coObjects);
-			else {
-				for (UINT j = 0; j < active_cells.size(); j++) {
-					if (active_cells[j]->BelongsToCell(objects[i])) {
-						objects[i]->Update(dt, &coObjects);
-							break;
+	LPCELL current_main_cell = grid->LocateCellByObject(player);
+
+	if (current_main_cell != NULL) {
+		if (player->GetState() != MARIO_STATE_DEATH){
+			vector<LPCELL> active_cells;
+			grid->GetAdjacentCells(current_main_cell, active_cells);
+
+			for (size_t i = 0; i < active_cells.size(); i++) {
+				for (UINT j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+					if ((dynamic_cast<CGoomba*>(active_cells[i]->GetObjects()[j]))
+						|| (dynamic_cast<CKoopa*>(active_cells[i]->GetObjects()[j]))
+						|| (dynamic_cast<CFireball*>(active_cells[i]->GetObjects()[j]))
+						|| (dynamic_cast<CPowerUp*>(active_cells[i]->GetObjects()[j]))
+						|| (dynamic_cast<CLift*>(active_cells[i]->GetObjects()[j]))
+						|| (dynamic_cast<CBoomerangBro*>(active_cells[i]->GetObjects()[j]))
+						|| (dynamic_cast<CBoomerang*>(active_cells[i]->GetObjects()[j]))) {
+						bool result = grid->CheckObjectIntegrity(active_cells[i]->GetObjects()[j], active_cells[i]);
+						if (!result) {
+							if (dynamic_cast<CFireball*>(active_cells[i]->GetObjects()[j])) {
+								if (dynamic_cast<CFireball*>(active_cells[i]->GetObjects()[j])->GetType() == FIREBALL_MARIO)
+									NumOfFireballs--;
+							}
+							active_cells[i]->DeleteObject(active_cells[i]->GetObjects()[j]);
+						}
 					}
 				}
 			}
-		}
 
-		if (hud == NULL)
-			return;
-		else
-			hud->Update(dt);
-
-		if (GetTickCount() - timer_start > TIC) {
-			if (timer == 1) {
-				CGame::GetInstance()->TimerTic();
-				timer_start = 0;
+			vector<LPGAMEOBJECT> coObjects;
+			for (size_t i = 0; i < active_cells.size(); i++) {
+				for (int j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+					coObjects.push_back(active_cells[i]->GetObjects()[j]);
+				}
 			}
-			StartTimer();
-		}
+			coObjects.push_back(player);
+			if (player->GetPCForm() == MARIO_FORM_RACCOON) {
+				coObjects.push_back(tail);
+				tail->Update(dt, &coObjects);
+			}
 
-		if ((CGame::GetInstance()->GetTime() == 0) && (!CourseCompleted)) {
-			timer = 0;
-			timer_start = 0;
-			player->SetState(MARIO_STATE_DEATH);
-		}
+			for (size_t i = 0; i < active_cells.size(); i++) {
+				for (UINT j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+					if ((player->GetState() == MARIO_STATE_EMERGING_UP) || (player->GetState() == MARIO_STATE_EMERGING_DOWN)) {
+						if ((dynamic_cast<CGoomba*>(active_cells[i]->GetObjects()[j]))
+							|| (dynamic_cast<CKoopa*>(active_cells[i]->GetObjects()[j]))
+							|| (dynamic_cast<CBoomerangBro*>(active_cells[i]->GetObjects()[j])))
+							continue;
+					}
 
-		float cx, cy;
-		player->GetPosition(cx, cy);
+					active_cells[i]->GetObjects()[j]->Update(dt, &coObjects);
+				}
+			}
 
-		cx -= CGame::GetInstance()->GetScreenWidth() / 2;
-		cy -= CGame::GetInstance()->GetScreenHeight() / 4;
+			player->Update(dt, &coObjects);
 
-		if (cx <= minX)
-			CGame::GetInstance()->SetCamX(minX);
-		else {
-			if (cx >= maxX - CGame::GetInstance()->GetScreenWidth() + 16)
-				CGame::GetInstance()->SetCamX(maxX - CGame::GetInstance()->GetScreenWidth() + 16);
+			if (hud == NULL)
+				return;
 			else
-				CGame::GetInstance()->SetCamX(cx);
-		}
+				hud->Update(dt);
 
-		if (cy <= minY)
-			CGame::GetInstance()->SetCamY(minY);
-		else {
-			if (cy >= maxY - CELL_WIDTH - CGame::GetInstance()->GetScreenHeight() + 68)
-				CGame::GetInstance()->SetCamY(maxY - CELL_WIDTH - CGame::GetInstance()->GetScreenHeight() + 68);
-			else
-				CGame::GetInstance()->SetCamY(cy);
-		}
+			if (GetTickCount() - timer_start > TIC) {
+				if (timer == 1) {
+					CGame::GetInstance()->TimerTic();
+					timer_start = 0;
+				}
+				StartTimer();
+			}
 
-		float Cx, Cy;
-		CGame::GetInstance()->GetCamPos(Cx, Cy);
+			if ((CGame::GetInstance()->GetTime() == 0) && (!CourseCompleted)) {
+				timer = 0;
+				timer_start = 0;
+				player->SetPCForm(MARIO_FORM_NORMAL);
+				player->SetState(MARIO_STATE_DEATH);
+			}
 
-		hud->SetPosition(Cx, Cy + 188);
+			if (!AutoScroll) {
+				float cx, cy;
+				player->GetPosition(cx, cy);
 
-		if (CourseCompleted) {
-			timer = 0;
-			timer_start = 0;
-			if (GetTickCount() - course_end > COURSE_END_DELAY) {
-				CGame::GetInstance()->TimerTic();
-				if (CGame::GetInstance()->GetTime() != 0)
-					CGame::GetInstance()->AddScore(50);
+				cx -= CGame::GetInstance()->GetScreenWidth() / 2;
+				cy -= CGame::GetInstance()->GetScreenHeight() / 4;
+
+				if (cx <= minX)
+					CGame::GetInstance()->SetCamX(minX);
+				else {
+					if (cx >= maxX - CGame::GetInstance()->GetScreenWidth() + 16.0f)
+						CGame::GetInstance()->SetCamX(maxX - CGame::GetInstance()->GetScreenWidth() + 16.0f);
+					else
+						CGame::GetInstance()->SetCamX(cx);
+				}
+
+				if (cy <= minY)
+					CGame::GetInstance()->SetCamY(minY);
+				else {
+					if (cy >= maxY - CGame::GetInstance()->GetScreenHeight() + 68.0f)
+						CGame::GetInstance()->SetCamY(maxY - CGame::GetInstance()->GetScreenHeight() + 68.0f);
+					else
+						CGame::GetInstance()->SetCamY(cy);
+				}
+			}
+			else {
+				float cx, cy;
+				CGame::GetInstance()->GetCamPos(cx, cy);
+
+				cx += CAMERA_SCROLL_SPEED;
+				if (cx >= maxX - CGame::GetInstance()->GetScreenWidth() + 16.0f)
+					CGame::GetInstance()->SetCamPos(maxX - CGame::GetInstance()->GetScreenWidth() + 16.0f, 64.0f);
 				else
-					CGame::GetInstance()->SwitchScene(1);
+					CGame::GetInstance()->SetCamPos(cx, 64.0f);
+			}
+
+			float Cx, Cy;
+			CGame::GetInstance()->GetCamPos(Cx, Cy);
+
+			hud->SetPosition(Cx, Cy + 188.0f);
+
+			if (CourseCompleted) {
+				timer = 0;
+				timer_start = 0;
+				if (GetTickCount() - course_end > COURSE_END_DELAY) {
+					CGame::GetInstance()->TimerTic();
+					if (CGame::GetInstance()->GetTime() != 0)
+						CGame::GetInstance()->AddScore(50);
+					else
+						CGame::GetInstance()->SwitchScene(1);
+				}
+			}
+		}
+		else
+			player->Update(dt);
+	}
+	else {
+		float fx, fy;
+		player->GetPosition(fx, fy);
+
+		if (fy >= maxY) {
+			if (!CourseCompleted) {
+				CGame::GetInstance()->SetPrevForm(MARIO_FORM_NORMAL);
+				CGame::GetInstance()->LoseLife();
+				CGame::GetInstance()->InitTimer();
+				CGame::GetInstance()->SwitchScene(1);
 			}
 		}
 	}
-	else
-		player->Update(dt, NULL);
 }
 
 void CPlayScene::Render()
 {
-	for (int j = 0; j < bg_objects.size(); j++) {
-		if (dynamic_cast<CHUD*>(bg_objects[j]))
-			continue;
+	LPCELL current_main_cell = grid->LocateCellByObject(player);
+	
+	if (current_main_cell == NULL) return;
 
-		bg_objects[j]->Render();
+	vector<LPCELL> active_cells;
+	grid->GetAdjacentCells(current_main_cell, active_cells);
+
+	vector<LPGAMEOBJECT> pipes, blocks, lifts;
+
+	for (UINT i = 0; i < active_cells.size(); i++) {
+		for (int j = 0; j < active_cells[i]->GetBackgroundObjects().size(); j++)
+			active_cells[i]->GetBackgroundObjects()[j]->Render();
 	}
-	for (int i = 0; i < objects.size(); i++) {
-		objects[i]->Render();
+
+	for (UINT i = 0; i < active_cells.size(); i++) {
+		for (int j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+			if (dynamic_cast<CBackgroundPlatform*>(active_cells[i]->GetObjects()[j]))
+				active_cells[i]->GetObjects()[j]->Render();
+			else
+				continue;
+		}
 	}
+
+	for (UINT i = 0; i < active_cells.size(); i++) {
+		for (int j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+			if (dynamic_cast<CBackgroundPlatform*>(active_cells[i]->GetObjects()[j]))
+				continue;
+
+			if (dynamic_cast<CPipe*>(active_cells[i]->GetObjects()[j])) {
+				pipes.push_back(active_cells[i]->GetObjects()[j]);
+				continue;
+			}
+			else {
+				if (dynamic_cast<CBlock*>(active_cells[i]->GetObjects()[j])) {
+					blocks.push_back(active_cells[i]->GetObjects()[j]);
+					continue;
+				}
+				else {
+					if (dynamic_cast<CLift*>(active_cells[i]->GetObjects()[j])) {
+						lifts.push_back(active_cells[i]->GetObjects()[j]);
+						continue;
+					}
+					else
+						active_cells[i]->GetObjects()[j]->Render();
+				}
+			}
+		}
+	}
+	
+	player->Render();
+	//tail->Render();
+
+	if (pipes.size() != 0) {
+		for (int i = 0; i < pipes.size(); i++)
+			pipes[i]->Render();
+	}
+
+	if (blocks.size() != 0) {
+		for (int i = 0; i < blocks.size(); i++)
+			blocks[i]->Render();
+	}
+
+	if (lifts.size() != 0) {
+		for (int i = 0; i < lifts.size(); i++)
+			lifts[i]->Render();
+	}
+
 	hud->Render();
 }
 
 void CPlayScene::Unload()
 {
-	for (int i = 0; i < objects.size(); i++) {
-		delete objects[i];
-	}
-	for (int j = 0; j < bg_objects.size(); j++) {
-		delete bg_objects[j];
-	}
-	objects.clear();
-	bg_objects.clear();
+	grid->ClearGrid();
 	player = NULL;
+	tail = NULL;
 	hud = NULL;
 	CourseCompleted = false;
+	NumOfFireballs = 0;
 	timer = 0;
 	timer_start = course_end = 0;
 }
@@ -523,9 +711,11 @@ void CPlaySceneKeyHandler::OnKeyDown(int KeyCode)
 	CMario* mario = ((CPlayScene*)scene)->getPlayer();
 	switch (KeyCode) {
 	case DIK_J: {
-		if (mario->GetPCForm() == MARIO_FORM_RACCOON || mario->GetPCForm() == MARIO_FORM_FIRE) {
-			if (!mario->GetAttackStatus())
+		if (mario->GetPCForm() == MARIO_FORM_RACCOON
+			|| (mario->GetPCForm() == MARIO_FORM_FIRE && (((CPlayScene*)scene)->GetFireballs() < 1))) {
+			if (!mario->GetAttackStatus()) {
 				mario->SetState(MARIO_STATE_ATTACK);
+			}
 		}
 		mario->StartSprint();
 		break;
@@ -608,7 +798,8 @@ void CPlaySceneKeyHandler::KeyState(BYTE* states)
 	}
 
 	if (game->IsKeyDown(DIK_K)) {
-		if (mario->GetVY() < 0)
+		float vy, vx = 0; mario->GetSpeed(vx, vy);
+		if (vy < 0)
 			mario->SetJumpCharge(true);
 	}
 

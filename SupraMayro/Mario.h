@@ -16,11 +16,12 @@
 #define MARIO_JUMP_DEFLECT_SPEED 0.25f
 #define MARIO_GRAVITY 0.002f
 #define MARIO_GRAVITY_FLY 0.05f
+#define MARIO_WARP_SPEED 0.03f
 #define MARIO_DIE_DEFLECT_SPEED 0.5f
 
 #define INVULN_TIME 1500
 #define EMERGE_TIME 500
-#define EMERGE_TIME_SUPER 800
+#define EMERGE_TIME_SUPER 725
 #define ATTACK_TIME_RACCOON 300
 #define ATTACK_TIME_FIRE 180
 #define SPRINT_CHARGE_CYCLE 400
@@ -122,6 +123,18 @@
 #define MARIO_ANI_WARPING_RACCOON 55
 #define MARIO_ANI_WARPING_FIRE 56
 
+#define MARIO_ANI_FLY_NORMAL_LEFT 57
+#define MARIO_ANI_FLY_NORMAL_RIGHT 58
+#define MARIO_ANI_FLY_SUPER_LEFT 59
+#define MARIO_ANI_FLY_SUPER_RIGHT 60
+#define MARIO_ANI_FLY_FIRE_LEFT 61
+#define MARIO_ANI_FLY_FIRE_RIGHT 62
+
+#define MARIO_ANI_FLAPPING_LEFT 63
+#define MARIO_ANI_FLAPPING_RIGHT 64
+#define MARIO_ANI_HIJUMP_LEFT 65
+#define MARIO_ANI_HIJUMP_RIGHT 66
+
 #define MARIO_NORMAL_BBOX_WIDTH 12
 #define MARIO_NORMAL_BBOX_HEIGHT 15
 #define MARIO_SUPER_BBOX_WIDTH 15
@@ -133,10 +146,11 @@ class CMario :public CGameObject {
 	int form;
 	float start_x, start_y;
 
+	float grav_limit_x, grav_limit_X;
+
 	int SprintChargeLevel;
 
-	bool IsGrounded, IsAttacking, IsCarrying, IsChargingJump, IsHoldingDownW, IsChargingSprint, IsFlying, IsFlapping;
-	int AttackTime;
+	bool IsGrounded, IsAttacking, IsCarrying, IsChargingJump, IsHoldingDownW, IsChargingSprint, IsFlying, IsFlapping, IsUsingLift;
 	int invuln;
 	DWORD invuln_start;
 	DWORD emerge_start;
@@ -154,8 +168,6 @@ public:
 	void SetPCForm(int form);
 	int GetPCForm() { return this->form; }
 	int GetNX() { return this->nx; }
-	float GetVY() { return this->vy; }
-	int GetAttackTime(){ return this->AttackTime; }
 	int GetCharge() { return this->SprintChargeLevel; }
 
 	bool GetGravStatus() { return this->IsGrounded; }

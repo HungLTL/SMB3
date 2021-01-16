@@ -12,7 +12,7 @@ CCoin::CCoin(int type) {
 	if (type == 0)
 		SetState(COIN_STATE_STATIC);
 	else {
-		SetState(COIN_STATE_DORMANT);
+		SetState(COIN_STATE_ACTIVE);
 	}
 }
 
@@ -20,7 +20,6 @@ void CCoin::SetState(int state) {
 	CGameObject::SetState(state);
 
 	switch (state) {
-	case COIN_STATE_DORMANT:
 	case COIN_STATE_STATIC:
 		vy = 0;
 		break;
@@ -36,20 +35,10 @@ void CCoin::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCO
 		LPCOLLISIONEVENT e = SweptAABBEx(coObjects->at(i));
 
 		if (e->t > 0 && e->t <= 1.0f) {
-			if (dynamic_cast<CMario*>(e->obj)) {
-				if (state == COIN_STATE_STATIC)
-					coEvents.push_back(e);
-			}
-			else {
-				if (dynamic_cast<CPBlock*>(e->obj)) {
-					if (state == COIN_STATE_DORMANT)
-						coEvents.push_back(e);
-					else
-						delete e;
-				}
-				else
-					delete e;
-			}
+			if (dynamic_cast<CMario*>(e->obj))
+				coEvents.push_back(e);
+			else
+				delete e;
 		}
 		else
 			delete e;
@@ -89,36 +78,17 @@ void CCoin::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 				CGame::GetInstance()->AddScore(50);
 				dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(this);
 			}
-
-			if (dynamic_cast<CPBlock*>(e->obj)) {
-				if (state == COIN_STATE_DORMANT) {
-					CPBlock* block = dynamic_cast<CPBlock*>(e->obj);
-					float fx, fy;
-					block->GetPosition(fx, fy);
-					this->SetPosition(fx, fy);
-					this->y0 = fy;
-					this->SetState(COIN_STATE_ACTIVE);
-					CGame::GetInstance()->AddCoin();
-					CGame::GetInstance()->AddScore(100);
-				}
-			}
 		}
 	}
 }
 
 void CCoin::Render() {
-	int ani;
-	switch (state) {
-	case COIN_STATE_ACTIVE:
-		ani = COIN_ANI_ACTIVE;
-		break;
-	case COIN_STATE_STATIC:
+	int ani = -1;
+	if (TransformedFromBlock)
 		ani = COIN_ANI_STATIC;
-		break;
-	default:
-		return;
-	}
-
+	else
+		ani = COIN_ANI_ACTIVE;
+	
 	animation_set->at(ani)->Render(x, y);
 	//RenderBoundingBox();
 }
@@ -129,13 +99,5 @@ void CCoin::GetBoundingBox(float& l, float& t, float& r, float& b) {
 		t = y + 1;
 		r = l + COIN_BBOX_WIDTH;
 		b = t + COIN_BBOX_HEIGHT;
-	}
-	else {
-		if (state == COIN_STATE_DORMANT) {
-			l = x + 5;
-			t = y;
-			r = l + COIN_BBOX_DORMANT_WIDTH;
-			b = y + COIN_BBOX_HEIGHT;
-		}
 	}
 }

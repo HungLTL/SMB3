@@ -301,7 +301,8 @@ void CGame::_ParseSection_SCENES(string line)
 		float Y = atof(tokens[6].c_str());
 		float xOnMap = atof(tokens[7].c_str());
 		float yOnMap = atof(tokens[8].c_str());
-		scene = new CPlayScene(id, path, x, X, y, Y, xOnMap, yOnMap);
+		int s = atoi(tokens[9].c_str());
+		scene = new CPlayScene(id, path, x, X, y, Y, xOnMap, yOnMap, s);
 		break;
 	}
 	case SCENE_TYPE_MAP:

@@ -50,8 +50,8 @@ void CPiranhaPlant::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			scrnw = CGame::GetInstance()->GetScreenWidth();
 			scrnh = CGame::GetInstance()->GetScreenHeight();
 
-			if ((cy >= y - scrnh) && (cx >= x - scrnw) && (cx <= x + PIRANHA_BBOX_WIDTH)) {
-				CFireball* fireball;
+			if ((x > cx - PIRANHA_BBOX_WIDTH) && (x < cx + scrnw) && (y < cy + scrnh)) {
+				CFireball* fireball = NULL;
 				if (this->nx > 0)
 					fireball = new CFireball(this, fx, fy, FIREBALL_PIRANHA, true);
 				else

@@ -4,13 +4,17 @@
 #include "Utility.h"
 #include "PlayScene.h"
 #include "Game.h"
+#include "Lift.h"
 #include "GoldBlock.h"
+#include "CoinBlock.h"
 #include "PSwitch.h"
 #include "PowerBlock.h"
 #include "Fireball.h"
+#include "Boomerang.h"
 #include "Goomba.h"
 #include "Koopa.h"
 #include "PiranhaPlant.h"
+#include "BoomerangBro.h"
 #include "Roulette.h"
 #include "Portal.h"
 
@@ -23,9 +27,11 @@ CMario::CMario(float x, float y) :CGameObject() {
 	SprintChargeLevel = 0;
 
 	IsGrounded = true;
-	IsCarrying = IsChargingJump = IsChargingSprint = IsHoldingDownW = IsAttacking = IsFlying = IsFlapping = false;
+	IsCarrying = IsChargingJump = IsChargingSprint = IsHoldingDownW = IsAttacking = IsFlying = IsFlapping = IsUsingLift = false;
 	sprint = invuln = 0;
 	emerge_start = attack_start = invuln_start = sprint_start = 0;
+
+	grav_limit_x = grav_limit_X = 0;
 
 	start_x = x;
 	start_y = y;
@@ -140,10 +146,26 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 	}
 
-	if (vy != 0)
-		IsGrounded = false;
-	else
-		IsGrounded = true;
+	if (IsUsingLift) {
+		vy += LIFT_GRAVITY * dt;
+		if (!IsGrounded)
+			IsGrounded = true;
+
+		int mw = 0;
+		if (form == MARIO_FORM_NORMAL)
+			mw = MARIO_NORMAL_BBOX_WIDTH;
+		else
+			mw = MARIO_SUPER_BBOX_WIDTH;
+
+		if ((x + mw < grav_limit_x) || (x >= grav_limit_X))
+			IsUsingLift = false;
+	}
+	else {
+		if (vy != 0)
+			IsGrounded = false;
+		else
+			IsGrounded = true;
+	}
 
 	if (IsAttacking) {
 		int attack_time = 0;
@@ -155,6 +177,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		}
 
 		if ((GetTickCount() - attack_start == 0) && (form == MARIO_FORM_FIRE)) {
+			dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->AddFireball();
 			CFireball* fireball = new CFireball(this, FIREBALL_MARIO);
 			dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->PushObject(fireball);
 		}
@@ -170,14 +193,13 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			vy -= MARIO_JUMP_ACCELERATE_SPEED * dt;
 	}
 
-
 	if ((state != MARIO_STATE_WARPING_UP)
 		&& (state != MARIO_STATE_EMERGING_UP)
 		&& (state != MARIO_STATE_EMERGING_DOWN)
 		&& (state != MARIO_STATE_WARPING_DOWN)
-		&& (!IsFlapping))
+		&& (!IsFlapping)
+		&& (!IsUsingLift))
 		vy += MARIO_GRAVITY * dt;
-
 
 	if ((state == MARIO_STATE_EMERGING_UP) || (state == MARIO_STATE_EMERGING_DOWN)) {
 		int emerge_time;
@@ -229,8 +251,22 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			LPCOLLISIONEVENT e = coEventsResult[i];
 
 			if (dynamic_cast<CGameObject*>(e->obj)) {
-				if (e->ny < 0)
+				if (e->ny < 0) {
 					IsGrounded = true;
+				}
+			}
+
+			if (dynamic_cast<CLift*>(e->obj)) {
+				if (e->ny < 0) {
+					CLift* lift = dynamic_cast<CLift*>(e->obj);
+					if (lift->GetState() == LIFT_STATE_MOVING) {
+						lift->SetState(LIFT_STATE_FALLING);
+						IsUsingLift = true;
+						lift->GetLiftCoordinates(grav_limit_x, grav_limit_X);
+					}
+				}
+				if (e->nx < 0)
+					x += min_tx * dx + nx;
 			}
 
 			if (dynamic_cast<CPipe*>(e->obj)) {
@@ -255,22 +291,43 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				}
 			}
 
-			if (dynamic_cast<CPBlock*>(e->obj)) {
-				CPBlock* PowerBlock = dynamic_cast<CPBlock*>(e->obj);
-				if ((e->ny > 0) || ((e->nx != 0) && (form == MARIO_FORM_RACCOON) && (IsAttacking))) {
-					if (!PowerBlock->GetState()) {
-						PowerBlock->SetState(true);
-						PowerBlock->ShiftY();
+			if (dynamic_cast<CGoldBlock*>(e->obj)) {
+				if (dynamic_cast<CPBlock*>(e->obj)) {
+					CPBlock* PowerBlock = dynamic_cast<CPBlock*>(e->obj);
+					if (e->ny > 0) {
+						if (!PowerBlock->GetState()) {
+							float pbx, pby; PowerBlock->GetPosition(pbx, pby);
+							float pblock_mid = pbx + WIDTH / 2;
+
+							int mw = 0;
+							if (form == MARIO_FORM_NORMAL)
+								mw = MARIO_NORMAL_BBOX_WIDTH;
+							else
+								mw = MARIO_SUPER_BBOX_WIDTH;
+							float m_mid = x + (float)(mw / 2);
+
+							if (m_mid < pblock_mid)
+								PowerBlock->ChangeActivationSide();
+							PowerBlock->SetState(true);
+							PowerBlock->SetStatus();
+						}
 					}
 				}
-			}
-
-			if (dynamic_cast<CGoldBlock*>(e->obj)) {
-				if (e->ny > 0) {
-					if (form == MARIO_FORM_NORMAL)
-						continue;
-					else
-						dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(e->obj);
+				else {
+					if (dynamic_cast<CCoinBlock*>(e->obj)) {
+						if (e->ny > 0)
+							dynamic_cast<CCoinBlock*>(e->obj)->SetStatus();
+					}
+					else {
+						if (e->ny > 0) {
+							if (form == MARIO_FORM_NORMAL)
+								dynamic_cast<CGoldBlock*>(e->obj)->SetStatus();
+							else {
+								dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->RemoveObject(e->obj);
+								CGame::GetInstance()->AddScore(10);
+							}
+						}
+					}
 				}
 			}
 
@@ -358,13 +415,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				if (e->ny < 0) {
 					switch (koopa->GetState()) {
 					case KOOPA_STATE_WALK_LEFT:
-						if (koopa->GetPara())
-							koopa->SetPara(false);
-						else {
-							koopa->SetState(KOOPA_STATE_DORMANT);
-							koopa->ModY(KOOPA_BBOX_HEIGHT - KOOPA_SHELL_BBOX_HEIGHT);
-						}
-						break;
 					case KOOPA_STATE_WALK_RIGHT:
 						if (koopa->GetPara())
 							koopa->SetPara(false);
@@ -413,8 +463,33 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 				}
 			}
 
+			if (dynamic_cast<CBoomerangBro*>(e->obj)) {
+				if (e->ny < 0) {
+					dynamic_cast<CBoomerangBro*>(e->obj)->SetState(BBRO_STATE_DEATH);
+					vy = -MARIO_JUMP_DEFLECT_SPEED;
+				}
+				else {
+					if (invuln == 0)
+					{
+						switch (form) {
+						case MARIO_FORM_RACCOON:
+						case MARIO_FORM_FIRE:
+							SetPCForm(MARIO_FORM_SUPER);
+							StartInvuln();
+							break;
+						case MARIO_FORM_SUPER:
+							SetPCForm(MARIO_FORM_NORMAL);
+							StartInvuln();
+							break;
+						case MARIO_FORM_NORMAL:
+							SetState(MARIO_STATE_DEATH);
+							break;
+						}
+					}
+				}
+			}
 
-			if ((dynamic_cast<CPiranhaPlant*>(e->obj)) || (dynamic_cast<CFireball*>(e->obj))) {
+			if ((dynamic_cast<CPiranhaPlant*>(e->obj)) || (dynamic_cast<CFireball*>(e->obj)) || (dynamic_cast<CBoomerang*>(e->obj))) {
 				if (invuln == 0)
 				{
 					switch (form) {
@@ -437,11 +512,19 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			if (dynamic_cast<CPortal*>(e->obj)) {
 				CPortal* portal = dynamic_cast<CPortal*>(e->obj);
 
-				if (state == MARIO_STATE_WARPING_DOWN)
-					CGame::GetInstance()->SetPrevState(MARIO_STATE_EMERGING_DOWN);
-				else {
-					if (state == MARIO_STATE_WARPING_UP)
+				if (state == MARIO_STATE_WARPING_DOWN) {
+					if (portal->GetDirection())
+						CGame::GetInstance()->SetPrevState(MARIO_STATE_EMERGING_DOWN);
+					else
 						CGame::GetInstance()->SetPrevState(MARIO_STATE_EMERGING_UP);
+				}
+				else {
+					if (state == MARIO_STATE_WARPING_UP) {
+						if (portal->GetDirection())
+							CGame::GetInstance()->SetPrevState(MARIO_STATE_EMERGING_UP);
+						else
+							CGame::GetInstance()->SetPrevState(MARIO_STATE_EMERGING_DOWN);
+					}
 				}
 
 				CGame::GetInstance()->SetPrevForm(form);
@@ -452,13 +535,6 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	}
 
 	for (UINT i = 0; i < coEvents.size(); i++) delete coEvents[i];
-
-	if ((y >= 500.0f) && (!(dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->GetCourseStatus()))) {
-		CGame::GetInstance()->SetPrevForm(MARIO_FORM_NORMAL);
-		CGame::GetInstance()->LoseLife();
-		CGame::GetInstance()->InitTimer();
-		CGame::GetInstance()->SwitchScene(1);
-	}
 }
 
 void CMario::Render() {
@@ -472,10 +548,18 @@ void CMario::Render() {
 				ani = MARIO_ANI_WARPING_NORMAL;
 			else {
 				if (!IsGrounded) {
-					if (nx > 0)
-						ani = MARIO_ANI_JUMP_NORMAL_RIGHT;
-					else
-						ani = MARIO_ANI_JUMP_NORMAL_LEFT;
+					if (SprintChargeLevel == SPRINT_CHARGE_MAX) {
+						if (nx > 0)
+							ani = MARIO_ANI_FLY_NORMAL_RIGHT;
+						else
+							ani = MARIO_ANI_FLY_NORMAL_LEFT;
+					}
+					else {
+						if (nx > 0)
+							ani = MARIO_ANI_JUMP_NORMAL_RIGHT;
+						else
+							ani = MARIO_ANI_JUMP_NORMAL_LEFT;
+					}
 				}
 				else {
 					if (vx == 0) {
@@ -518,10 +602,18 @@ void CMario::Render() {
 				ani = MARIO_ANI_WARPING_SUPER;
 			else {
 				if (!IsGrounded) {
-					if (nx > 0)
-						ani = MARIO_ANI_JUMP_SUPER_RIGHT;
-					else
-						ani = MARIO_ANI_JUMP_SUPER_LEFT;
+					if (SprintChargeLevel == SPRINT_CHARGE_MAX) {
+						if (nx > 0)
+							ani = MARIO_ANI_FLY_SUPER_RIGHT;
+						else
+							ani = MARIO_ANI_FLY_SUPER_LEFT;
+					}
+					else {
+						if (nx > 0)
+							ani = MARIO_ANI_JUMP_SUPER_RIGHT;
+						else
+							ani = MARIO_ANI_JUMP_SUPER_LEFT;
+					}
 				}
 				else {
 					if (vx == 0) {
@@ -579,16 +671,32 @@ void CMario::Render() {
 				else {
 					if (!IsGrounded) {
 						if (IsFlapping) {
-							if (nx > 0)
-								ani = MARIO_ANI_FLY_RACCOON_RIGHT;
-							else
-								ani = MARIO_ANI_FLY_RACCOON_LEFT;
+							if (SprintChargeLevel == SPRINT_CHARGE_MAX) {
+								if (nx > 0)
+									ani = MARIO_ANI_FLY_RACCOON_RIGHT;
+								else
+									ani = MARIO_ANI_FLY_RACCOON_LEFT;
+							}
+							else {
+								if (nx > 0)
+									ani = MARIO_ANI_FLAPPING_RIGHT;
+								else
+									ani = MARIO_ANI_FLAPPING_LEFT;
+							}
 						}
 						else {
-							if (nx > 0)
-								ani = MARIO_ANI_JUMP_RACCOON_RIGHT;
-							else
-								ani = MARIO_ANI_JUMP_RACCOON_LEFT;
+							if (SprintChargeLevel == SPRINT_CHARGE_MAX) {
+								if (nx > 0)
+									ani = MARIO_ANI_HIJUMP_RIGHT;
+								else
+									ani = MARIO_ANI_HIJUMP_LEFT;
+							}
+							else {
+								if (nx > 0)
+									ani = MARIO_ANI_JUMP_RACCOON_RIGHT;
+								else
+									ani = MARIO_ANI_JUMP_RACCOON_LEFT;
+							}
 						}
 					}
 					else {
@@ -640,10 +748,18 @@ void CMario::Render() {
 				ani = MARIO_ANI_WARPING_FIRE;
 			else {
 				if (!IsGrounded) {
-					if (nx > 0)
-						ani = MARIO_ANI_JUMP_FIRE_RIGHT;
-					else
-						ani = MARIO_ANI_JUMP_FIRE_LEFT;
+					if (SprintChargeLevel == SPRINT_CHARGE_MAX) {
+						if (nx > 0)
+							ani = MARIO_ANI_FLY_FIRE_RIGHT;
+						else
+							ani = MARIO_ANI_FLY_FIRE_LEFT;
+					}
+					else {
+						if (nx > 0)
+							ani = MARIO_ANI_JUMP_FIRE_RIGHT;
+						else
+							ani = MARIO_ANI_JUMP_FIRE_LEFT;
+					}
 				}
 				else {
 					if (state == MARIO_STATE_ATTACK) {
@@ -707,10 +823,14 @@ void CMario::Render() {
 		}
 	}
 
-	if ((form == MARIO_FORM_RACCOON) && (nx > 0))
-		animation_set->at(ani)->Render(x - 7, y);
+	int alpha = 255;
+	if (invuln == 1)
+		alpha = 128;
+
+	if ((form == MARIO_FORM_RACCOON) && (nx > 0) && (ani != MARIO_ANI_WARPING_RACCOON))
+		animation_set->at(ani)->Render(x - 7.0f, y, alpha);
 	else
-		animation_set->at(ani)->Render(x, y);
+		animation_set->at(ani)->Render(x, y, alpha);
 	//RenderBoundingBox();
 }
 
@@ -752,10 +872,15 @@ void CMario::SetState(int state) {
 		nx = -1;
 		break;
 	case MARIO_STATE_JUMP:
-		if ((form == MARIO_FORM_RACCOON) && (SprintChargeLevel == SPRINT_CHARGE_MAX) && (!IsFlying)) {
+		IsUsingLift = false;
+		grav_limit_x = grav_limit_X = 0;
+
+		if (SprintChargeLevel == SPRINT_CHARGE_MAX) {
 			vy = -MARIO_INIT_FLY_SPEED;
-			IsFlying = true;
-			StartFly();
+			if ((form == MARIO_FORM_RACCOON) && (!IsFlying)) {
+				IsFlying = true;
+				StartFly();
+			}
 		}
 		else
 			vy = -MARIO_JUMP_SPEED_Y;
@@ -797,13 +922,13 @@ void CMario::SetState(int state) {
 		StartEmerge();
 	case MARIO_STATE_WARPING_DOWN:
 		vx = 0;
-		vy = 0.03;
+		vy = MARIO_WARP_SPEED;
 		break;
 	case MARIO_STATE_EMERGING_UP:
 		StartEmerge();
 	case MARIO_STATE_WARPING_UP:
 		vx = 0;
-		vy = -0.03;
+		vy = -MARIO_WARP_SPEED;
 		break;
 	}
 }

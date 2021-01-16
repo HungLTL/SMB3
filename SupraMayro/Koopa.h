@@ -7,10 +7,12 @@
 #define PARATROOPA_BOUNCE_SPEED 0.45f
 #define KOOPA_DIE_DEFLECT_SPEED 0.5f
 #define KOOPA_GRAVITY 0.0015f
+#define KOOPA_SLOWFALL 0.00138f
+#define KOOPA_FLY_SPEED 0.14f
 
 #define KOOPA_BBOX_WIDTH 16
 #define KOOPA_BBOX_HEIGHT 26
-#define KOOPA_SHELL_BBOX_HEIGHT 16
+#define KOOPA_SHELL_BBOX_HEIGHT 15
 
 #define KOOPA_STATE_WALK_LEFT 100
 #define KOOPA_STATE_WALK_RIGHT 150
@@ -26,24 +28,26 @@
 #define KOOPA_ANI_DEATH 4
 #define PARATROOPA_ANI_LEFT 5
 #define PARATROOPA_ANI_RIGHT 6
+#define KOOPA_ANI_EMERGING 7
 
 #define DORMANT_TIME 10000
+#define DORMANT_WARNING 8000
 
 class CKoopa :public CGameObject {
 protected:
-	int min_x;
-	int max_x;
+	int min_x, max_x;
 
-	int playerX, playerY;
+	int playerx, playerX;
+	int min_y, max_y;
 
-	bool Para;
-	bool IsBeingCarried;
+	bool Para, IsBeingCarried, active, IsStationary, IsFlyingUp;
 
 	int dormant;
 	DWORD dormant_start;
 public:
 	CKoopa(int x, int X);
-	CKoopa(int x, int X, int px, int py);
+	CKoopa(int x, int X, int px, int pX);
+	CKoopa(int x, int y, int Y);
 	void CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPCOLLISIONEVENT>& coEvents);
 	void SetState(int state);
 	int GetState() { return this->state; }

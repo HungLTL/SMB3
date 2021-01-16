@@ -2,14 +2,12 @@
 #include "GameObject.h"
 
 #define COIN_STATE_STATIC 0
-#define COIN_STATE_DORMANT 100
 #define COIN_STATE_ACTIVE 200
 
 #define COIN_ANI_STATIC 0
 #define COIN_ANI_ACTIVE 1
 
 #define COIN_BBOX_WIDTH 14
-#define COIN_BBOX_DORMANT_WIDTH 6
 #define COIN_BBOX_HEIGHT 14
 
 #define COIN_GRAVITY 0.075f
