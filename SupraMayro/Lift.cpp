@@ -9,7 +9,7 @@ void CLift::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 	if (state == LIFT_STATE_IDLE) {
 		float fx, fy = 0.0f;
 		CGame::GetInstance()->GetCamPos(fx, fy);
-		float scrw = CGame::GetInstance()->GetScreenWidth();
+		float scrw = (float)CGame::GetInstance()->GetScreenWidth();
 
 		if (fx >= x - WIDTH - scrw)
 			SetState(LIFT_STATE_MOVING);

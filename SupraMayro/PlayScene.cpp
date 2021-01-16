@@ -7,7 +7,7 @@
 #include "Sprites.h"
 #include "Animations.h"
 
-CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, float xOnMap, float yOnMap, int scroll) :CScene(id, filePath) {
+CPlayScene::CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, int xOnMap, int yOnMap, int scroll) :CScene(id, filePath) {
 	key_handler = new CPlaySceneKeyHandler(this);
 	player = NULL;
 	tail = NULL;
@@ -110,7 +110,7 @@ void CPlayScene::_ParseSection_ANIMATIONS(string line)
 	LPANIMATION ani = new CAnimation();
 
 	int ani_id = atoi(tokens[0].c_str());
-	for (int i = 1; i < tokens.size(); i += 2)
+	for (size_t i = 1; i < tokens.size(); i += 2)
 	{
 		int sprite_id = atoi(tokens[i].c_str());
 		int frame_time = atoi(tokens[i + 1].c_str());
@@ -132,7 +132,7 @@ void CPlayScene::_ParseSection_ANIMATION_SETS(string line)
 
 	CAnimations* animations = CAnimations::GetInstance();
 
-	for (int i = 1; i < tokens.size(); i++)
+	for (size_t i = 1; i < tokens.size(); i++)
 	{
 		int ani_id = atoi(tokens[i].c_str());
 
@@ -150,8 +150,8 @@ void CPlayScene::_ParseSection_OBJECTS(string line)
 	if (tokens.size() < 3) return;
 
 	int object_type = atoi(tokens[0].c_str());
-	float x = atof(tokens[1].c_str());
-	float y = atof(tokens[2].c_str());
+	float x = stof(tokens[1].c_str());
+	float y = stof(tokens[2].c_str());
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
@@ -186,8 +186,8 @@ void CPlayScene::_ParseSection_CELLS(string line, int row, int column) {
 	if (tokens.size() < 3) return;
 
 	int object_type = atoi(tokens[0].c_str());
-	float x = atof(tokens[1].c_str());
-	float y = atof(tokens[2].c_str());
+	float x = stof(tokens[1].c_str());
+	float y = stof(tokens[2].c_str());
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
@@ -248,7 +248,7 @@ void CPlayScene::_ParseSection_CELLS(string line, int row, int column) {
 	{
 		IsGameObject = false;
 		vector<int> d;
-		for (int i = 4; i < tokens.size(); i++) {
+		for (size_t i = 4; i < tokens.size(); i++) {
 			d.push_back(atoi(tokens[i].c_str()));
 		}
 		bg_obj = new CShrub(d);
@@ -284,7 +284,7 @@ void CPlayScene::_ParseSection_CELLS(string line, int row, int column) {
 		case 2: {
 			int min_y = atoi(tokens[5].c_str());
 			int max_y = atoi(tokens[6].c_str());
-			obj = new CKoopa(x, min_y, max_y);
+			obj = new CKoopa((int)x, min_y, max_y);
 			break;
 		}
 		}
@@ -496,7 +496,7 @@ void CPlayScene::Update(DWORD dt)
 
 			vector<LPGAMEOBJECT> coObjects;
 			for (size_t i = 0; i < active_cells.size(); i++) {
-				for (int j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+				for (size_t j = 0; j < active_cells[i]->GetObjects().size(); j++) {
 					coObjects.push_back(active_cells[i]->GetObjects()[j]);
 				}
 			}
@@ -623,13 +623,13 @@ void CPlayScene::Render()
 
 	vector<LPGAMEOBJECT> pipes, blocks, lifts;
 
-	for (UINT i = 0; i < active_cells.size(); i++) {
-		for (int j = 0; j < active_cells[i]->GetBackgroundObjects().size(); j++)
+	for (size_t i = 0; i < active_cells.size(); i++) {
+		for (size_t j = 0; j < active_cells[i]->GetBackgroundObjects().size(); j++)
 			active_cells[i]->GetBackgroundObjects()[j]->Render();
 	}
 
-	for (UINT i = 0; i < active_cells.size(); i++) {
-		for (int j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+	for (size_t i = 0; i < active_cells.size(); i++) {
+		for (size_t j = 0; j < active_cells[i]->GetObjects().size(); j++) {
 			if (dynamic_cast<CBackgroundPlatform*>(active_cells[i]->GetObjects()[j]))
 				active_cells[i]->GetObjects()[j]->Render();
 			else
@@ -637,8 +637,8 @@ void CPlayScene::Render()
 		}
 	}
 
-	for (UINT i = 0; i < active_cells.size(); i++) {
-		for (int j = 0; j < active_cells[i]->GetObjects().size(); j++) {
+	for (size_t i = 0; i < active_cells.size(); i++) {
+		for (size_t j = 0; j < active_cells[i]->GetObjects().size(); j++) {
 			if (dynamic_cast<CBackgroundPlatform*>(active_cells[i]->GetObjects()[j]))
 				continue;
 
@@ -667,17 +667,17 @@ void CPlayScene::Render()
 	//tail->Render();
 
 	if (pipes.size() != 0) {
-		for (int i = 0; i < pipes.size(); i++)
+		for (size_t i = 0; i < pipes.size(); i++)
 			pipes[i]->Render();
 	}
 
 	if (blocks.size() != 0) {
-		for (int i = 0; i < blocks.size(); i++)
+		for (size_t i = 0; i < blocks.size(); i++)
 			blocks[i]->Render();
 	}
 
 	if (lifts.size() != 0) {
-		for (int i = 0; i < lifts.size(); i++)
+		for (size_t i = 0; i < lifts.size(); i++)
 			lifts[i]->Render();
 	}
 

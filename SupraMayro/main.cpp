@@ -49,7 +49,7 @@ void Render() {
 	LPDIRECT3DSURFACE9 bb = game->GetBackBuffer();
 	LPD3DXSPRITE spriteHandler = game->GetSpriteHandler();
 
-	if (d3ddv->BeginScene())
+	if (d3ddv->BeginScene() == S_OK)
 	{
 		d3ddv->ColorFill(bb, NULL, BACKGROUND_COLOR);
 		spriteHandler->Begin(D3DXSPRITE_ALPHABLEND);

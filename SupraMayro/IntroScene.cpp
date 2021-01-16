@@ -68,7 +68,7 @@ void CIntroScene::_ParseSection_ANIMATIONS(string line)
 	LPANIMATION ani = new CAnimation();
 
 	int ani_id = atoi(tokens[0].c_str());
-	for (int i = 1; i < tokens.size(); i += 2)
+	for (size_t i = 1; i < tokens.size(); i += 2)
 	{
 		int sprite_id = atoi(tokens[i].c_str());
 		int frame_time = atoi(tokens[i + 1].c_str());
@@ -90,7 +90,7 @@ void CIntroScene::_ParseSection_ANIMATION_SETS(string line)
 
 	CAnimations* animations = CAnimations::GetInstance();
 
-	for (int i = 1; i < tokens.size(); i++)
+	for (size_t i = 1; i < tokens.size(); i++)
 	{
 		int ani_id = atoi(tokens[i].c_str());
 
@@ -107,8 +107,8 @@ void CIntroScene::_ParseSection_OBJECTS(string line) {
 	if (tokens.size() < 3) return;
 
 	int object_type = atoi(tokens[0].c_str());
-	float x = atof(tokens[1].c_str());
-	float y = atof(tokens[2].c_str());
+	float x = stof(tokens[1].c_str());
+	float y = stof(tokens[2].c_str());
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
@@ -179,7 +179,7 @@ void CIntroScene::Load() {
 }
 
 void CIntroScene::Update(DWORD dt) {
-	for (int i = 0; i < objects.size(); i++)
+	for (size_t i = 0; i < objects.size(); i++)
 		objects[i]->Update(dt);
 
 	if (cursor == NULL)
@@ -187,12 +187,12 @@ void CIntroScene::Update(DWORD dt) {
 }
 
 void CIntroScene::Render() {
-	for (int i = 0; i < objects.size(); i++)
+	for (size_t i = 0; i < objects.size(); i++)
 		objects[i]->Render();
 }
 
 void CIntroScene::Unload() {
-	for (int i = 0; i < objects.size(); i++)
+	for (size_t i = 0; i < objects.size(); i++)
 		delete objects[i];
 
 	objects.clear();

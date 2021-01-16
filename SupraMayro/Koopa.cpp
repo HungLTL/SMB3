@@ -91,14 +91,18 @@ void CKoopa::CalcPotentialCollisions(vector<LPGAMEOBJECT>* coObjects, vector<LPC
 			}
 			else {
 				if (dynamic_cast<CGoldBlock*>(e->obj)) {
-					if (e->nx != 0) {
-						if ((state == KOOPA_STATE_WALK_LEFT) || (state == KOOPA_STATE_WALK_RIGHT))
-							delete e;
+					if (dynamic_cast<CPBlock*>(e->obj))
+						coEvents.push_back(e);
+					else {
+						if (e->nx != 0) {
+							if ((state == KOOPA_STATE_WALK_LEFT) || (state == KOOPA_STATE_WALK_RIGHT))
+								delete e;
+							else
+								coEvents.push_back(e);
+						}
 						else
 							coEvents.push_back(e);
 					}
-					else
-						coEvents.push_back(e);
 				}
 				else
 					coEvents.push_back(e);
@@ -118,8 +122,12 @@ void CKoopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 	CGameObject::Update(dt);
 
 	if (state != KOOPA_STATE_DORMANT) {
-		if (!IsStationary)
-			vy += KOOPA_GRAVITY * dt;
+		if (!IsStationary) {
+			if (Para)
+				vy += PARAKOOPA_GRAVITY * dt;
+			else
+				vy += KOOPA_GRAVITY * dt;
+		}
 		else {
 			if (!Para)
 				vy += KOOPA_GRAVITY * dt;
@@ -177,7 +185,7 @@ void CKoopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 				if (block->GetNudge()) {
 					SetState(KOOPA_STATE_DORMANT);
 					vy = -KOOPA_DIE_DEFLECT_SPEED * 2 / 3;
-					vx = 0.055;
+					vx = KOOPA_BOUNCE_RECOIL;
 				}
 			}
 		}
@@ -235,12 +243,12 @@ void CKoopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 
 		if ((state == KOOPA_STATE_WALK_LEFT) || (state == KOOPA_STATE_WALK_RIGHT)) {
 			if (state == KOOPA_STATE_WALK_LEFT && x < min_x) {
-				x = min_x;
+				x = (float)min_x;
 				this->SetState(KOOPA_STATE_WALK_RIGHT);
 			}
 
 			if (state == KOOPA_STATE_WALK_RIGHT && x > max_x) {
-				x = max_x;
+				x = (float)max_x;
 				this->SetState(KOOPA_STATE_WALK_LEFT);
 			}
 		}
@@ -248,13 +256,13 @@ void CKoopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 		if (IsStationary) {
 			if (Para) {
 				if (y <= min_y) {
-					y = min_y;
+					y = (float)min_y;
 					IsFlyingUp = false;
 					vy = KOOPA_FLY_SPEED;
 				}
 
 				if (y >= max_y) {
-					y = max_y;
+					y = (float)max_y;
 					IsFlyingUp = true;
 					vy = -KOOPA_FLY_SPEED;
 				}
@@ -294,13 +302,13 @@ void CKoopa::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 					if (!Para) {
 						if (dynamic_cast<CWoodPlatform*>(e->obj)) {
 							CWoodPlatform* platform = dynamic_cast<CWoodPlatform*>(e->obj);
-							this->min_x = platform->GetX();
-							this->max_x = platform->GetX() + platform->GetLength() - WIDTH;
+							this->min_x = (int)platform->GetX();
+							this->max_x = (int)platform->GetX() + (int)platform->GetLength() - WIDTH;
 						}
 						if (dynamic_cast<CBackgroundPlatform*>(e->obj)) {
 							CBackgroundPlatform* platform = dynamic_cast<CBackgroundPlatform*>(e->obj);
-							this->min_x = platform->GetX();
-							this->max_x = platform->GetX() + platform->GetLength() - WIDTH;
+							this->min_x = (int)platform->GetX();
+							this->max_x = (int)platform->GetX() + (int)platform->GetLength() - WIDTH;
 						}
 						if (state == KOOPA_STATE_DORMANT)
 							vx = 0;
@@ -404,11 +412,17 @@ void CKoopa::SetState(int state) {
 	switch (state) {
 	case KOOPA_STATE_WALK_LEFT:
 		nx = -1;
-		vx = -KOOPA_WALKING_SPEED;
+		if (Para)
+			vx = -PARAKOOPA_WALKING_SPEED;
+		else
+			vx = -KOOPA_WALKING_SPEED;
 		break;
 	case KOOPA_STATE_WALK_RIGHT:
 		nx = 1;
-		vx = KOOPA_WALKING_SPEED;
+		if (Para)
+			vx = PARAKOOPA_WALKING_SPEED;
+		else
+			vx = KOOPA_WALKING_SPEED;
 		break;
 	case KOOPA_STATE_DEATH:
 		vx = 0;

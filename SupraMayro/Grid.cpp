@@ -26,10 +26,10 @@ bool CCell::BelongsToCell(LPGAMEOBJECT obj) {
 }
 
 void CCell::ClearCell() {
-	for (int i = 0; i < objects.size(); i++)
+	for (size_t i = 0; i < objects.size(); i++)
 		delete objects[i];
 
-	for (int j = 0; j < bg_objects.size(); j++)
+	for (size_t j = 0; j < bg_objects.size(); j++)
 		delete bg_objects[j];
 
 	objects.clear();
@@ -37,8 +37,8 @@ void CCell::ClearCell() {
 }
 
 CGrid::CGrid(float l, float h, float StartX, float StartY) {
-	length = l / CELL_WIDTH;
-	height = h / CELL_WIDTH;
+	length = (int)(l / CELL_WIDTH);
+	height = (int)(h / CELL_WIDTH);
 	vector<vector<LPCELL>> vec(height, vector<LPCELL>(length));
 	grid = vec;
 
@@ -50,7 +50,7 @@ CGrid::CGrid(float l, float h, float StartX, float StartY) {
 }
 
 void CGrid::ReplaceObject(int row, int column, LPGAMEOBJECT obj, LPGAMEOBJECT newObj) {
-	for (int i = 0; i < grid[row][column]->GetObjects().size(); i++) {
+	for (size_t i = 0; i < grid[row][column]->GetObjects().size(); i++) {
 		if (grid[row][column]->GetObjects()[i] == obj) {
 			grid[row][column]->GetObjects()[i] = newObj;
 			return;
@@ -65,7 +65,7 @@ bool CGrid::CheckObjectIntegrity(LPGAMEOBJECT obj, LPCELL cell) {
 		vector<LPCELL> PotentialNewCells;
 		GetAdjacentCells(cell, PotentialNewCells);
 
-		for (int i = 0; i < PotentialNewCells.size(); i++) {
+		for (size_t i = 0; i < PotentialNewCells.size(); i++) {
 			if (PotentialNewCells[i]->BelongsToCell(obj)) {
 				cell->DeleteObject(obj);
 				PotentialNewCells[i]->AddToCell(obj);

@@ -52,7 +52,7 @@ public:
 	void GetSpeed(float& vx, float& vy) { vx = this->vx; vy = this->vy; }
 
 	int GetState() { return this->state; }
-	int GetX() { return this->x; }
+	float GetX() { return this->x; }
 
 	void GetInitBoundaries() { this->x0 = this->x; this->y0 = this->y; }
 

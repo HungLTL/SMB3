@@ -68,19 +68,19 @@ void CBoomerang::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 
 		if (!Direction) {
 			if (x <= min_x) {
-				x = min_x;
+				x = (float)min_x;
 				vx = -vx;
 			}
 		}
 		else {
 			if (x >= max_x) {
-				x = max_x;
+				x = (float)max_x;
 				vx = -vx;
 			}
 		}
 
 		if (y >= max_y) {
-			y = max_y;
+			y = (float)max_y;
 			vy = 0;
 		}
 	}

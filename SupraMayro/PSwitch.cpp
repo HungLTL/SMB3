@@ -22,8 +22,8 @@ void CPSwitch::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			vector<LPCELL> cells;
 			current_scene->getCells(this, cells);
 
-			for (UINT i = 0; i < cells.size(); i++) {
-				for (int j = 0; j < cells[i]->GetObjects().size(); j++) {
+			for (size_t i = 0; i < cells.size(); i++) {
+				for (size_t j = 0; j < cells[i]->GetObjects().size(); j++) {
 					if (dynamic_cast<CCoin*>((cells[i]->GetObjects()[j]))) {
 						CCoin* coin = dynamic_cast<CCoin*>(cells[i]->GetObjects()[j]);
 						if (coin->GetOrigins()) {
@@ -92,8 +92,8 @@ void CPSwitch::SetState(int state) {
 		vector<LPCELL> cells;
 		current_scene->getCells(this, cells);
 
-		for (UINT i = 0; i < cells.size(); i++) {
-			for (int j = 0; j < cells[i]->GetObjects().size(); j++) {
+		for (size_t i = 0; i < cells.size(); i++) {
+			for (size_t j = 0; j < cells[i]->GetObjects().size(); j++) {
 				if (dynamic_cast<CGoldBlock*>((cells[i]->GetObjects()[j]))) {
 					CGoldBlock* block = dynamic_cast<CGoldBlock*>(cells[i]->GetObjects()[j]);
 					float fx, fy;

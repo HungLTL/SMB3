@@ -52,7 +52,8 @@ class CPlayScene :public CScene {
 
 	CGrid* grid;
 
-	float minX, maxX, minY, maxY, xOnMap, yOnMap;
+	int xOnMap, yOnMap;
+	float minX, maxX, minY, maxY;
 	bool CourseCompleted;
 	bool AutoScroll;
 
@@ -69,7 +70,7 @@ class CPlayScene :public CScene {
 	void _ParseSection_OBJECTS(string line);
 	void _ParseSection_CELLS(string line, int row, int column);
 public:
-	CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, float xOnMap, float yOnMap, int scroll);
+	CPlayScene(int id, LPCWSTR filePath, float x, float X, float y, float Y, int xOnMap, int yOnMap, int scroll);
 
 	virtual void Load();
 	virtual void Update(DWORD dt);

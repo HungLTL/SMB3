@@ -1,4 +1,4 @@
-Poorly-implemented remake of one of the best platforming games ever made by an idiot who has absolutely no prior experience to game development and advanced C++. The owner of this repository should be ashamed.
+A basic C++ rendition of Super Mario Bros 3., with Worlds 1-1 and 1-4. Created as a first step to the world of video game development.
 
 UPDATE v1.2:
 - Mario functions fleshed out: Now has the ability to carry koopa shells, charge up jumps and sprints, can now fly properly, and a tail that can identify overlaps instead of collisions
@@ -29,11 +29,15 @@ UPDATE v1.3
 - CGoldBlock, CPowerBlock: Now bounces when activated
 - CKoopa: When dormant, will change into a "warning" animation at the last 2 seconds
 
-Controls:
+UPDATE v1.3.1
+- Fixed warnings
 
-AD: move left/right
-S: crouch (game scene, non-normal forms)/move down (overworld map)
-W: warp up (game scene, if possible)/move up (overworld map)
-I: start game at splash screen
-J: attack(fire or raccoon)/sprint/carry
-K: jump/fly/select level
+Controls:
+- AD: move left/right
+- S: crouch (game scene, non-normal forms)/move down (overworld map)
+- W: warp up (game scene, if possible)/move up (overworld map)
+- I: start game at splash screen
+- J: attack(fire or raccoon)/sprint/carry
+- K: jump/fly/select level
+
+CHEATS: Press 1, 2, 3, 4 to switch between the normal, super, raccoon and fire forms respectively

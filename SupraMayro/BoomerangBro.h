@@ -16,7 +16,7 @@
 #define BBRO_ANI_DEATH_RIGHT 7
 
 #define IDLE_TIME 1000
-#define CHECK_TIME 3000
+#define CHECK_TIME 6000
 
 #define BBRO_SPEED 0.04f
 #define BBRO_DIE_DEFLECT_SPEED 0.3f

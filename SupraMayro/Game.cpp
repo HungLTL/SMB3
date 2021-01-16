@@ -295,12 +295,12 @@ void CGame::_ParseSection_SCENES(string line)
 		scene = new CIntroScene(id, path);
 		break;
 	case SCENE_TYPE_GAME: {
-		float x = atof(tokens[3].c_str());
-		float X = atof(tokens[4].c_str());
-		float y = atof(tokens[5].c_str());
-		float Y = atof(tokens[6].c_str());
-		float xOnMap = atof(tokens[7].c_str());
-		float yOnMap = atof(tokens[8].c_str());
+		float x = stof(tokens[3].c_str());
+		float X = stof(tokens[4].c_str());
+		float y = stof(tokens[5].c_str());
+		float Y = stof(tokens[6].c_str());
+		int xOnMap = atoi(tokens[7].c_str());
+		int yOnMap = atoi(tokens[8].c_str());
 		int s = atoi(tokens[9].c_str());
 		scene = new CPlayScene(id, path, x, X, y, Y, xOnMap, yOnMap, s);
 		break;
@@ -364,7 +364,7 @@ void CGame::SwitchScene(int scene_id)
 			prevState = NULL;
 		}
 		if ((newX != NULL) && (newY != NULL)) {
-			(dynamic_cast<CPlayScene*>(s))->getPlayer()->SetPosition(newX, newY);
+			(dynamic_cast<CPlayScene*>(s))->getPlayer()->SetPosition((float)newX, (float)newY);
 			newX = NULL;
 			newY = NULL;
 		}
@@ -377,7 +377,7 @@ void CGame::SwitchScene(int scene_id)
 		}
 		if (dynamic_cast<CMapScene*>(s)) {
 			if ((newX != NULL) && (newY != NULL)) {
-				(dynamic_cast<CMapScene*>(s))->GetPlayer()->SetPosition(newX, newY);
+				(dynamic_cast<CMapScene*>(s))->GetPlayer()->SetPosition((float)newX, (float)newY);
 				newX = NULL;
 				newY = NULL;
 			}

@@ -17,7 +17,7 @@ CHUD::CHUD() {
 
 void CHUD::SplitIntoDigit(int number, vector<int> &vec, int n) {
 	for (int i = n - 1, j = 0; i >= 0; i--, j++) {
-		vec[i] = (number / pow(10.0, (double)j));
+		vec[i] = (int)((double)number / pow(10.0, (double)j));
 		vec[i] %= 10;
 	}
 }

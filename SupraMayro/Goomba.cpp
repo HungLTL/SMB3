@@ -106,8 +106,8 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	if ((form == GOOMBA_FORM_PARA) && (state != GOOMBA_STATE_FLY)) {
 		float cx, cy;
 		CGame::GetInstance()->GetCamPos(cx, cy);
-		float scrnh = CGame::GetInstance()->GetScreenHeight();
-		float scrnw = CGame::GetInstance()->GetScreenWidth();
+		float scrnh = (float)CGame::GetInstance()->GetScreenHeight();
+		float scrnw = (float)CGame::GetInstance()->GetScreenWidth();
 
 		if ((x > cx) && (x < cx + scrnw) && (y > cy) && (y < cy + scrnh)) {
 			if (mario->GetX() > this->x)
@@ -139,11 +139,11 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		y += dy;
 
 		if (state==GOOMBA_STATE_WALK_LEFT && x < min_x) {
-			x = min_x; SetState(GOOMBA_STATE_WALK_RIGHT);
+			x = (float)min_x; SetState(GOOMBA_STATE_WALK_RIGHT);
 		}
 
 		if (state==GOOMBA_STATE_WALK_RIGHT && x > max_x) {
-			x = max_x; SetState(GOOMBA_STATE_WALK_LEFT);
+			x = (float)max_x; SetState(GOOMBA_STATE_WALK_LEFT);
 		}
 		
 	}
@@ -193,13 +193,13 @@ void CGoomba::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 					if (form == GOOMBA_FORM_NORMAL) {
 						if (dynamic_cast<CWoodPlatform*>(e->obj)) {
 							CWoodPlatform* platform = dynamic_cast<CWoodPlatform*>(e->obj);
-							this->min_x = platform->GetX();
-							this->max_x = platform->GetX() + platform->GetLength() - WIDTH;
+							this->min_x = (int)platform->GetX();
+							this->max_x = (int)platform->GetX() + (int)platform->GetLength() - WIDTH;
 						}
 						if (dynamic_cast<CBackgroundPlatform*>(e->obj)) {
 							CBackgroundPlatform* platform = dynamic_cast<CBackgroundPlatform*>(e->obj);
-							this->min_x = platform->GetX();
-							this->max_x = platform->GetX() + platform->GetLength() - WIDTH;
+							this->min_x = (int)platform->GetX();
+							this->max_x = (int)platform->GetX() + (int)platform->GetLength() - WIDTH;
 						}
 					}
 					else {

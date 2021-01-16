@@ -168,7 +168,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 	}
 
 	if (IsAttacking) {
-		int attack_time = 0;
+		DWORD attack_time = 0;
 		if (form == MARIO_FORM_RACCOON)
 			attack_time = ATTACK_TIME_RACCOON;
 		else {
@@ -202,7 +202,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 		vy += MARIO_GRAVITY * dt;
 
 	if ((state == MARIO_STATE_EMERGING_UP) || (state == MARIO_STATE_EMERGING_DOWN)) {
-		int emerge_time;
+		DWORD emerge_time = 0;
 		if (form == MARIO_FORM_NORMAL)
 			emerge_time = EMERGE_TIME;
 		else
@@ -272,7 +272,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 			if (dynamic_cast<CPipe*>(e->obj)) {
 				CPipe* pipe = dynamic_cast<CPipe*>(e->obj);
 				if (pipe->GetWarp()) {
-					int pipePos = pipe->GetX();
+					int pipePos = (int)pipe->GetX();
 					int warpStart = pipePos + 2;
 					int warpEnd = pipePos + (WIDTH * 2) - 2 - MARIO_SUPER_BBOX_WIDTH;
 
@@ -399,7 +399,7 @@ void CMario::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects)
 
 				if (koopa->GetState() == KOOPA_STATE_DORMANT) {
 					if (!IsCarrying) {
-						if (e->nx != 0) {
+						if ((e->nx != 0) || (e->ny > 0)) {
 							StartInvuln();
 							if (this->nx > 0)
 								koopa->SetState(KOOPA_STATE_PINBALL_RIGHT);

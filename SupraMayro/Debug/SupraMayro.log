@@ -1,8 +1,50 @@
-﻿  Koopa.cpp
-E:\Visual Projects\SupraMayro\SupraMayro\GameObject.h(55,26): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(180,16): warning C4305: '=': truncation from 'double' to 'float'
-E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(238,9): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(243,9): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(251,10): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-E:\Visual Projects\SupraMayro\SupraMayro\Koopa.cpp(257,10): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+﻿  Animations.cpp
+  BackgroundObject.cpp
+  BackgroundObjectHeight.cpp
+  BackgroundObjectRect.cpp
+  BackgroundPlatform.cpp
+  Block.cpp
+  Boomerang.cpp
+  BoomerangBro.cpp
+  Cloud.cpp
+  Coin.cpp
+  CoinBlock.cpp
+  Curtain.cpp
+  Fireball.cpp
+  Game.cpp
+  GameObject.cpp
+  GameOver.cpp
+  GoldBlock.cpp
+  Goomba.cpp
+  Grid.cpp
+  HUD.cpp
+  Generating Code...
+  Compiling...
+  IntroScene.cpp
+  Koopa.cpp
+  Lift.cpp
+  main.cpp
+  MapLevelBlock.cpp
+  MapMario.cpp
+  MapScene.cpp
+  Mario.cpp
+  Pipe.cpp
+  PiranhaPlant.cpp
+  PlayScene.cpp
+  Portal.cpp
+  PowerBlock.cpp
+  PowerUp.cpp
+  PSwitch.cpp
+  Roulette.cpp
+  Scene.cpp
+  Shrub.cpp
+  Sprites.cpp
+  Tail.cpp
+  Generating Code...
+  Compiling...
+  Textures.cpp
+  TitleCursor.cpp
+  Utility.cpp
+  WoodPlatform.cpp
+  Generating Code...
   SupraMayro.vcxproj -> E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe

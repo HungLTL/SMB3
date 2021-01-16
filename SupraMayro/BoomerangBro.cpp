@@ -108,7 +108,7 @@ void CBoomerangBro::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 
 		if (state == BBRO_STATE_WALK_LEFT) {
 			if (x < min_x) {
-				x = min_x;
+				x = (float)min_x;
 				SetState(BBRO_STATE_IDLE);
 			}
 			if (x <= mid_x) {
@@ -141,7 +141,7 @@ void CBoomerangBro::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 
 		if (state == BBRO_STATE_WALK_RIGHT) {
 			if (x > max_x) {
-				x = max_x;
+				x = (float)max_x;
 				SetState(BBRO_STATE_IDLE);
 			}
 			if (x >= mid_x) {

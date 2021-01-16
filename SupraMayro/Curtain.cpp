@@ -22,7 +22,7 @@ void CCurtain::Update(DWORD dt) {
 	}
 	
 	if (y + height * WIDTH <= 17) {
-		y = 17 - height * WIDTH;
+		y = 17.0f - (float)(height * WIDTH);
 
 		if (dynamic_cast<CIntroScene*>(CGame::GetInstance()->GetCurrentScene())->getCursor() == NULL) {
 			CTitleCursor* cursor = new CTitleCursor();

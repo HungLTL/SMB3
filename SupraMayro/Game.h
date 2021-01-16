@@ -17,34 +17,38 @@ class CGame
 {
 	static CGame* __instance;
 
-	HWND hWnd;
+	HWND hWnd = NULL;
 	LPDIRECT3D9 d3d = NULL;
 	LPDIRECT3DDEVICE9 d3ddv = NULL;
 	LPDIRECT3DSURFACE9 backBuffer = NULL;
 	LPD3DXSPRITE spriteHandler = NULL;
 
-	LPDIRECTINPUT8       di;
-	LPDIRECTINPUTDEVICE8 didv;
+	LPDIRECTINPUT8       di = NULL;
+	LPDIRECTINPUTDEVICE8 didv = NULL;
 	BYTE  keyStates[256];
 	DIDEVICEOBJECTDATA keyEvents[KEYBOARD_BUFFER_SIZE];
 
-	LPKEYEVENTHANDLER keyHandler;
+	LPKEYEVENTHANDLER keyHandler = NULL;
 
 	float cam_x = 0.0f;
 	float cam_y = 0.0f;
 
-	int screen_width;
-	int screen_height;
+	int screen_width = 0;
+	int screen_height = 0;
 
 	std::unordered_map<int, LPSCENE> scenes;
-	int current_scene;
+	int current_scene = NULL;
 
-	int prevState;
-	int prevForm;
+	int prevState = NULL;
+	int prevForm = NULL;
 
-	int newX, newY;
+	int newX = 0;
+	int newY = 0;
 
-	int lives, score, time, coins;
+	int lives = 0;
+	int score = 0;
+	int time = 0;
+	int coins = 0;
 	vector<int> cards;
 
 	void _ParseSection_SETTINGS(std::string line);

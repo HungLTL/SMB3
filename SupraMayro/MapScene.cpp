@@ -75,7 +75,7 @@ void CMapScene::_ParseSection_ANIMATIONS(string line)
 	LPANIMATION ani = new CAnimation();
 
 	int ani_id = atoi(tokens[0].c_str());
-	for (int i = 1; i < tokens.size(); i += 2)
+	for (size_t i = 1; i < tokens.size(); i += 2)
 	{
 		int sprite_id = atoi(tokens[i].c_str());
 		int frame_time = atoi(tokens[i + 1].c_str());
@@ -97,7 +97,7 @@ void CMapScene::_ParseSection_ANIMATION_SETS(string line)
 
 	CAnimations* animations = CAnimations::GetInstance();
 
-	for (int i = 1; i < tokens.size(); i++)
+	for (size_t i = 1; i < tokens.size(); i++)
 	{
 		int ani_id = atoi(tokens[i].c_str());
 
@@ -115,8 +115,8 @@ void CMapScene::_ParseSection_OBJECTS(string line)
 	if (tokens.size() < 3) return;
 
 	int object_type = atoi(tokens[0].c_str());
-	float x = atof(tokens[1].c_str());
-	float y = atof(tokens[2].c_str());
+	float x = stof(tokens[1].c_str());
+	float y = stof(tokens[2].c_str());
 
 	int ani_set_id = atoi(tokens[3].c_str());
 
@@ -242,12 +242,12 @@ void CMapScene::Update(DWORD dt) {
 }
 
 void CMapScene::Render() {
-	for (int j = 0; j < bg_objects.size(); j++) {
+	for (size_t j = 0; j < bg_objects.size(); j++) {
 		if (dynamic_cast<CGameOver*>(bg_objects.at(j)))
 			continue;
 		bg_objects[j]->Render();
 	}
-	for (int i = 0; i < objects.size(); i++) {
+	for (size_t i = 0; i < objects.size(); i++) {
 		objects[i]->Render();
 	}
 	if (gameover != NULL)
@@ -255,10 +255,10 @@ void CMapScene::Render() {
 }
 
 void CMapScene::Unload() {
-	for (int i = 0; i < objects.size(); i++) {
+	for (size_t i = 0; i < objects.size(); i++) {
 		delete objects[i];
 	}
-	for (int j = 0; j < bg_objects.size(); j++) {
+	for (size_t j = 0; j < bg_objects.size(); j++) {
 		delete bg_objects[j];
 	}
 	objects.clear();
