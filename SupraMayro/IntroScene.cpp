@@ -204,12 +204,12 @@ void CIntroSceneKeyHandler::OnKeyDown(int keyCode) {
 
 	if (select != NULL) {
 		switch (keyCode) {
-		case DIK_W:
-		case DIK_S:
+		case DIK_UPARROW:
+		case DIK_DOWNARROW:
 			if (select != NULL)
 				select->ChangeState();
 			break;
-		case DIK_I:
+		case DIK_W:
 			if (select->GetState() == CURSOR_SP) {
 				CGame::GetInstance()->InitHUD();
 				CGame::GetInstance()->SwitchScene(1);

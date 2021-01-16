@@ -275,11 +275,11 @@ void CMapSceneKeyHandler::OnKeyDown(int keyCode) {
 
 	if (((CMapScene*)scene)->GetGameStatus()){
 		switch (keyCode) {
-		case DIK_W:
-		case DIK_S:
+		case DIK_UPARROW:
+		case DIK_DOWNARROW:
 			game_over->ChangeOption();
 			break;
-		case DIK_K:
+		case DIK_S:
 			game_over->EnforceOption();
 			break;
 		}
@@ -287,16 +287,16 @@ void CMapSceneKeyHandler::OnKeyDown(int keyCode) {
 	else {
 		if (player->IsIdle()) {
 			switch (keyCode) {
-			case DIK_A:
+			case DIK_LEFTARROW:
 				player->SetState(STATE_MOVE_LEFT);
 				break;
-			case DIK_W:
+			case DIK_UPARROW:
 				player->SetState(STATE_MOVE_UP);
 				break;
-			case DIK_D:
+			case DIK_RIGHTARROW:
 				player->SetState(STATE_MOVE_RIGHT);
 				break;
-			case DIK_S:
+			case DIK_DOWNARROW:
 				player->SetState(STATE_MOVE_DOWN);
 				break;
 			case DIK_1:
@@ -311,7 +311,7 @@ void CMapSceneKeyHandler::OnKeyDown(int keyCode) {
 			case DIK_4:
 				player->SetPCForm(FORM_FIRE);
 				break;
-			case DIK_K:
+			case DIK_S:
 				int scene_id = ((CMapScene*)scene)->GetDestinationScene();
 				if (scene_id != NULL) {
 					CGame::GetInstance()->SetPrevForm(player->GetPCForm());

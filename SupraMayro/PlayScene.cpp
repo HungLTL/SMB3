@@ -710,9 +710,9 @@ void CPlaySceneKeyHandler::OnKeyDown(int KeyCode)
 {
 	CMario* mario = ((CPlayScene*)scene)->getPlayer();
 	switch (KeyCode) {
-	case DIK_J: {
+	case DIK_A: {
 		if (mario->GetPCForm() == MARIO_FORM_RACCOON
-			|| (mario->GetPCForm() == MARIO_FORM_FIRE && (((CPlayScene*)scene)->GetFireballs() < 1))) {
+			|| (mario->GetPCForm() == MARIO_FORM_FIRE && (((CPlayScene*)scene)->GetFireballs() <= 1))) {
 			if (!mario->GetAttackStatus()) {
 				mario->SetState(MARIO_STATE_ATTACK);
 			}
@@ -720,7 +720,7 @@ void CPlaySceneKeyHandler::OnKeyDown(int KeyCode)
 		mario->StartSprint();
 		break;
 	}
-	case DIK_K:
+	case DIK_S:
 		if (mario->GetGravStatus())
 			mario->SetState(MARIO_STATE_JUMP);
 		else {
@@ -750,7 +750,7 @@ void CPlaySceneKeyHandler::OnKeyDown(int KeyCode)
 void CPlaySceneKeyHandler::OnKeyUp(int KeyCode) {
 	CMario* mario = ((CPlayScene*)scene)->getPlayer();
 	switch (KeyCode) {
-	case DIK_S: {
+	case DIK_DOWNARROW: {
 		if ((mario->GetState() != MARIO_STATE_WARPING_UP) && (mario->GetState() != MARIO_STATE_WARPING_DOWN)) {
 			mario->SetState(MARIO_STATE_IDLE);
 			if (mario->GetPCForm() != MARIO_FORM_NORMAL)
@@ -758,14 +758,14 @@ void CPlaySceneKeyHandler::OnKeyUp(int KeyCode) {
 		}
 		break;
 	}
-	case DIK_J:
+	case DIK_A:
 		mario->SetCarryStatus(false);
 		mario->SetSprintCharge(false);
 		break;	
-	case DIK_K:
+	case DIK_S:
 		mario->SetJumpCharge(false);
 		break;
-	case DIK_W:
+	case DIK_UPARROW:
 		mario->SetWButtonStatus(false);
 		break;
 	}
@@ -782,7 +782,7 @@ void CPlaySceneKeyHandler::KeyState(BYTE* states)
 		|| ((CPlayScene*)scene)->GetCourseStatus())
 		return;
 
-	if (game->IsKeyDown(DIK_J)) {
+	if (game->IsKeyDown(DIK_A)) {
 		mario->SetCarryStatus(true);
 		if ((!mario->GetAttackStatus()) || (mario->GetPCForm() == MARIO_FORM_NORMAL) || (mario->GetPCForm() == MARIO_FORM_SUPER)) {
 			mario->ToggleSprint();
@@ -790,28 +790,28 @@ void CPlaySceneKeyHandler::KeyState(BYTE* states)
 		}
 	}
 
-	if (game->IsKeyDown(DIK_W)) {
+	if (game->IsKeyDown(DIK_UPARROW)) {
 		if (mario->GetState() == MARIO_STATE_WARPING_UP)
 			return;
 		else
 			mario->SetWButtonStatus(true);
 	}
 
-	if (game->IsKeyDown(DIK_K)) {
+	if (game->IsKeyDown(DIK_S)) {
 		float vy, vx = 0; mario->GetSpeed(vx, vy);
 		if (vy < 0)
 			mario->SetJumpCharge(true);
 	}
 
-	if (game->IsKeyDown(DIK_D)) {
+	if (game->IsKeyDown(DIK_RIGHTARROW)) {
 		mario->SetState(MARIO_STATE_WALK_RIGHT);
 	}
 	else {
-		if (game->IsKeyDown(DIK_A)) {
+		if (game->IsKeyDown(DIK_LEFTARROW)) {
 			mario->SetState(MARIO_STATE_WALK_LEFT);
 		}
 		else {
-			if (game->IsKeyDown(DIK_S)) {
+			if (game->IsKeyDown(DIK_DOWNARROW)) {
 				mario->SetState(MARIO_STATE_CROUCH);
 				if (mario->GetPCForm() != MARIO_FORM_NORMAL)
 					mario->ModY(MARIO_SUPER_BBOX_HEIGHT - MARIO_CROUCH_BBOX_HEIGHT);
