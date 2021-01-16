@@ -33,11 +33,11 @@ UPDATE v1.3.1
 - Fixed warnings
 
 Controls:
-- AD: move left/right
-- S: crouch (game scene, non-normal forms)/move down (overworld map)
-- W: warp up (game scene, if possible)/move up (overworld map)
-- I: start game at splash screen
-- J: attack(fire or raccoon)/sprint/carry
-- K: jump/fly/select level
+- Left/Right Arrow: move left/right
+- Down Arrow: crouch (game scene, non-normal forms)/move down (overworld map)
+- Up Arrow: warp up (game scene, if possible)/move up (overworld map)
+- W: start game at splash screen
+- A: attack(fire or raccoon)/sprint/carry
+- S: jump/fly/select level
 
 CHEATS: Press 1, 2, 3, 4 to switch between the normal, super, raccoon and fire forms respectively
