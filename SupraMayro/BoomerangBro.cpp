@@ -106,6 +106,10 @@ void CBoomerangBro::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 		x += dx;
 		y += dy;
 
+		float cx, cy; CGame::GetInstance()->GetCamPos(cx, cy);
+		int scrnw = CGame::GetInstance()->GetScreenWidth();
+		int scrnh = CGame::GetInstance()->GetScreenHeight();
+
 		if (state == BBRO_STATE_WALK_LEFT) {
 			if (x < min_x) {
 				x = (float)min_x;
@@ -113,9 +117,6 @@ void CBoomerangBro::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			}
 			if (x <= mid_x) {
 				if (Ready) {
-					float cx, cy; CGame::GetInstance()->GetCamPos(cx, cy);
-					int scrnw = CGame::GetInstance()->GetScreenWidth();
-					int scrnh = CGame::GetInstance()->GetScreenHeight();
 					if ((x > cx - BBRO_BBOX_WIDTH) && (y < cy + scrnh)) {
 						if (ammo > 0) {
 							CBoomerang* boomerang = NULL;
@@ -146,21 +147,23 @@ void CBoomerangBro::Update(DWORD dt, vector<LPGAMEOBJECT>* coObjects) {
 			}
 			if (x >= mid_x) {
 				if (Ready) {
-					if (ammo > 0) {
-						CBoomerang* boomerang = NULL;
-						if (nx < 0) {
-							boomerang = new CBoomerang(false);
-							boomerang->SetPosition(x + 10.0f, y - 6.0f);
-						}
-						else {
-							boomerang = new CBoomerang(true);
-							boomerang->SetPosition(x, y - 6.0f);
-						}
+					if ((x > cx - BBRO_BBOX_WIDTH) && (y < cy + scrnh)) {
+						if (ammo > 0) {
+							CBoomerang* boomerang = NULL;
+							if (nx < 0) {
+								boomerang = new CBoomerang(false);
+								boomerang->SetPosition(x + 10.0f, y - 6.0f);
+							}
+							else {
+								boomerang = new CBoomerang(true);
+								boomerang->SetPosition(x, y - 6.0f);
+							}
 
-						boomerang->GetInitBoundaries();
-						boomerang->SetBoundaries();
-						dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->PushObject(boomerang);
-						ammo--;
+							boomerang->GetInitBoundaries();
+							boomerang->SetBoundaries();
+							dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->PushObject(boomerang);
+							ammo--;
+						}
 					}
 					Ready = false;
 				}
