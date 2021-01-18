@@ -712,7 +712,7 @@ void CPlaySceneKeyHandler::OnKeyDown(int KeyCode)
 	switch (KeyCode) {
 	case DIK_J: {
 		if (mario->GetPCForm() == MARIO_FORM_RACCOON
-			|| (mario->GetPCForm() == MARIO_FORM_FIRE && (((CPlayScene*)scene)->GetFireballs() < 1))) {
+			|| (mario->GetPCForm() == MARIO_FORM_FIRE && (((CPlayScene*)scene)->GetFireballs() <= 1))) {
 			if (!mario->GetAttackStatus()) {
 				mario->SetState(MARIO_STATE_ATTACK);
 			}
