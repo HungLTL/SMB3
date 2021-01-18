@@ -79,6 +79,7 @@ public:
 
 	CMario* getPlayer() { return player; }
 	void getCells(LPGAMEOBJECT obj, vector<LPCELL> &adjCells) { LPCELL cell = grid->LocateCellByObject(obj); grid->GetAdjacentCells(cell, adjCells); }
+	void getMaxMin(float& x, float& X, float& y, float& Y) { x = minX; X = maxX; y = minY; Y = maxY; }
 
 	void PushObject(LPGAMEOBJECT obj);
 	void Replace(int i, LPGAMEOBJECT newObj);

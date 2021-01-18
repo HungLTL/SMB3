@@ -32,6 +32,9 @@ UPDATE v1.3
 UPDATE v1.3.1
 - Fixed warnings
 
+UPDATE v1.4 OFFICIAL
+- CGrid: LocateCellByObject function now searches for appropriate cell by mathematics instead of manually scanning the entire grid
+
 Controls:
 - Left/Right Arrow: move left/right
 - Down Arrow: crouch (game scene, non-normal forms)/move down (overworld map)
@@ -39,5 +42,6 @@ Controls:
 - W: start game at splash screen
 - A: attack(fire or raccoon)/sprint/carry
 - S: jump/fly/select level
+- R: kill yourself lol
 
 CHEATS: Press 1, 2, 3, 4 to switch between the normal, super, raccoon and fire forms respectively

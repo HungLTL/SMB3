@@ -1,50 +1,27 @@
-﻿  Animations.cpp
-  BackgroundObject.cpp
-  BackgroundObjectHeight.cpp
-  BackgroundObjectRect.cpp
-  BackgroundPlatform.cpp
-  Block.cpp
-  Boomerang.cpp
+﻿  Boomerang.cpp
   BoomerangBro.cpp
-  Cloud.cpp
   Coin.cpp
   CoinBlock.cpp
-  Curtain.cpp
   Fireball.cpp
   Game.cpp
-  GameObject.cpp
-  GameOver.cpp
-  GoldBlock.cpp
   Goomba.cpp
   Grid.cpp
   HUD.cpp
-  Generating Code...
-  Compiling...
   IntroScene.cpp
   Koopa.cpp
   Lift.cpp
-  main.cpp
-  MapLevelBlock.cpp
-  MapMario.cpp
   MapScene.cpp
   Mario.cpp
-  Pipe.cpp
+  PSwitch.cpp
   PiranhaPlant.cpp
   PlayScene.cpp
-  Portal.cpp
   PowerBlock.cpp
   PowerUp.cpp
-  PSwitch.cpp
   Roulette.cpp
-  Scene.cpp
-  Shrub.cpp
-  Sprites.cpp
-  Tail.cpp
   Generating Code...
   Compiling...
-  Textures.cpp
-  TitleCursor.cpp
-  Utility.cpp
-  WoodPlatform.cpp
+  Tail.cpp
+  main.cpp
   Generating Code...
+  LINK : E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe not found or not built by the last incremental link; performing full link
   SupraMayro.vcxproj -> E:\Visual Projects\SupraMayro\Debug\SupraMayro.exe

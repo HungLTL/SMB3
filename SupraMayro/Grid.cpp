@@ -110,13 +110,22 @@ void CGrid::GetAdjacentCells(LPCELL cell, vector<LPCELL> &result) {
 }
 
 LPCELL CGrid::LocateCellByObject(LPGAMEOBJECT obj) {
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < length; j++) {
-			if (grid[i][j]->BelongsToCell(obj))
-				return grid[i][j];
-		}
+	float ox, oy; obj->GetPosition(ox, oy);
+	CCoordinates newCoords;
+	newCoords.row = (int)(oy / CELL_WIDTH);
+	newCoords.column = (int)(ox / CELL_WIDTH);
+
+	float x, X, y, Y;
+	dynamic_cast<CPlayScene*>(CGame::GetInstance()->GetCurrentScene())->getMaxMin(x, X, y, Y);
+	if (y < 0) {
+		if (oy >= 0)
+			newCoords.row++;
 	}
-	return NULL;
+
+	if ((newCoords.row < height) && (newCoords.row >= 0) && (newCoords.column < length) && (newCoords.column >= 0))
+		return grid[newCoords.row][newCoords.column];
+	else
+		return NULL;
 }
 
 void CGrid::ClearGrid() {
